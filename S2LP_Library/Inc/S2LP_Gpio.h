@@ -256,44 +256,42 @@ typedef struct {
   SFlagStatus  :2;                             /*!< Reserved bit */
 } S2LPIrqs;
 
-
+typedef uint32_t IrqList;
 /**
  * @brief  IRQ list enumeration for S2LP. This enumeration type can be used to address a
  *         specific IRQ.
  */
-typedef enum {
-  RX_DATA_READY = 0x00000001,           /*!< IRQ: RX data ready */
-  RX_DATA_DISC = 0x00000002,            /*!< IRQ: RX data discarded (upon filtering) */
-  TX_DATA_SENT = 0x00000004,            /*!< IRQ: TX data sent */
-  MAX_RE_TX_REACH = 0x00000008,         /*!< IRQ: Max re-TX reached */
-  CRC_ERROR = 0x00000010,               /*!< IRQ: CRC error */
-  TX_FIFO_ERROR = 0x00000020,           /*!< IRQ: TX FIFO underflow/overflow error */
-  RX_FIFO_ERROR = 0x00000040,           /*!< IRQ: RX FIFO underflow/overflow error */
-  TX_FIFO_ALMOST_FULL = 0x00000080,     /*!< IRQ: TX FIFO almost full */
-  TX_FIFO_ALMOST_EMPTY = 0x00000100,    /*!< IRQ: TX FIFO almost empty */
-  RX_FIFO_ALMOST_FULL = 0x00000200,     /*!< IRQ: RX FIFO almost full */
-  RX_FIFO_ALMOST_EMPTY = 0x00000400,    /*!< IRQ: RX FIFO almost empty  */
-  MAX_BO_CCA_REACH = 0x00000800,        /*!< IRQ: Max number of back-off during CCA */
-  VALID_PREAMBLE = 0x00001000,          /*!< IRQ: Valid preamble detected */
-  VALID_SYNC = 0x00002000,              /*!< IRQ: Sync word detected */
-  RSSI_ABOVE_TH = 0x00004000,           /*!< IRQ: RSSI above threshold */
-  WKUP_TOUT_LDC = 0x00008000,           /*!< IRQ: Wake-up timeout in LDC mode */
-  READY = 0x00010000,                   /*!< IRQ: READY state */
-  STANDBY_DELAYED = 0x00020000,         /*!< IRQ: STANDBY state after MCU_CK_CONF_CLOCK_TAIL_X clock cycles */
-  LOW_BATT_LVL = 0x00040000,            /*!< IRQ: Battery level below threshold*/
-  POR = 0x00080000,                     /*!< IRQ: Power On Reset */
-  BOR = 0x00100000,                     /*!< IRQ: Brown out event (both accurate and inaccurate)*/
-  LOCK = 0x00200000,                    /*!< IRQ: LOCK state */
-  VCO_CALIBRATION_END = 0x00400000,        /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
-  PA_CALIBRATION_END = 0x00800000,        /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
-  PM_COUNT_EXPIRED = 0x01000000,        /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
-  XO_COUNT_EXPIRED = 0x02000000,        /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
-  TX_START_TIME = 0x04000000,	        /*!< IRQ: only for debug; TX circuitry startup time; see TX_START_COUNTER */
-  RX_START_TIME = 0x08000000,	        /*!< IRQ: only for debug; RX circuitry startup time; see TX_START_COUNTER */
-  RX_TIMEOUT = 0x10000000,	        /*!< IRQ: RX operation timeout */
-  RX_SNIFF_TIMEOUT = 0x20000000,                 /*!< IRQ: RX sniff operation timeout */
-  ALL_IRQ = 0x7FFFFFFF			/*!< All the above mentioned IRQs */
-} IrqList;
+#define    IRQ_RX_DATA_READY 0x00000001           /*!< IRQ: RX data ready */
+#define    IRQ_RX_DATA_DISC 0x00000002            /*!< IRQ: RX data discarded (upon filtering) */
+#define    IRQ_TX_DATA_SENT 0x00000004            /*!< IRQ: TX data sent */
+#define    IRQ_MAX_RE_TX_REACH 0x00000008         /*!< IRQ: Max re-TX reached */
+#define    IRQ_CRC_ERROR 0x00000010               /*!< IRQ: CRC error */
+#define    IRQ_TX_FIFO_ERROR 0x00000020           /*!< IRQ: TX FIFO underflow/overflow error */
+#define    IRQ_RX_FIFO_ERROR 0x00000040           /*!< IRQ: RX FIFO underflow/overflow error */
+#define    IRQ_TX_FIFO_ALMOST_FULL 0x00000080     /*!< IRQ: TX FIFO almost full */
+#define    IRQ_TX_FIFO_ALMOST_EMPTY 0x00000100    /*!< IRQ: TX FIFO almost empty */
+#define    IRQ_RX_FIFO_ALMOST_FULL 0x00000200     /*!< IRQ: RX FIFO almost full */
+#define    IRQ_RX_FIFO_ALMOST_EMPTY 0x00000400    /*!< IRQ: RX FIFO almost empty  */
+#define    IRQ_MAX_BO_CCA_REACH 0x00000800        /*!< IRQ: Max number of back-off during CCA */
+#define    IRQ_VALID_PREAMBLE 0x00001000          /*!< IRQ: Valid preamble detected */
+#define    IRQ_VALID_SYNC 0x00002000              /*!< IRQ: Sync word detected */
+#define    IRQ_RSSI_ABOVE_TH 0x00004000           /*!< IRQ: RSSI above threshold */
+#define    IRQ_WKUP_TOUT_LDC 0x00008000           /*!< IRQ: Wake-up timeout in LDC mode */
+#define    IRQ_READY 0x00010000                   /*!< IRQ: READY state */
+#define    IRQ_STANDBY_DELAYED 0x00020000         /*!< IRQ: STANDBY state after MCU_CK_CONF_CLOCK_TAIL_X clock cycles */
+#define    IRQ_LOW_BATT_LVL 0x00040000            /*!< IRQ: Battery level below threshold*/
+#define    IRQ_POR 0x00080000                     /*!< IRQ: Power On Reset */
+#define    IRQ_BOR 0x00100000                     /*!< IRQ: Brown out event (both accurate and inaccurate)*/
+#define    IRQ_LOCK 0x00200000                    /*!< IRQ: LOCK state */
+#define    IRQ_VCO_CALIBRATION_END 0x00400000        /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
+#define    IRQ_PA_CALIBRATION_END 0x00800000        /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
+#define    IRQ_PM_COUNT_EXPIRED 0x01000000        /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
+#define    IRQ_XO_COUNT_EXPIRED 0x02000000        /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
+#define    IRQ_TX_START_TIME 0x04000000	        /*!< IRQ: only for debug; TX circuitry startup time; see TX_START_COUNTER */
+#define    IRQ_RX_START_TIME 0x08000000	        /*!< IRQ: only for debug; RX circuitry startup time; see TX_START_COUNTER */
+#define    IRQ_RX_TIMEOUT 0x10000000	        /*!< IRQ: RX operation timeout */
+#define    IRQ_RX_SNIFF_TIMEOUT 0x20000000                 /*!< IRQ: RX sniff operation timeout */
+#define    IRQ_ALL_IRQ 0x7FFFFFFF			/*!< All the above mentioned IRQs */
 
 
 /**

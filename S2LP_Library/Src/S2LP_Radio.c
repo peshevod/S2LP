@@ -26,6 +26,7 @@
 #include "S2LP_Radio.h"
 #include "S2LP_Config.h"
 #include "MCU_Interface.h"
+//#include "s2-lp.h"
 
 
 /** @addtogroup S2LP_Libraries
@@ -723,7 +724,7 @@ void S2LPRadioGetInfo(SRadioInit* pxSRadioInitStruct)
   
   /* Reads the channel filter bandwidth from the look-up table and return it */
   pxSRadioInitStruct->lBandwidth = S2LPRadioComputeChannelFilterBw(bw_m, bw_e);
-  
+
 }
 
 

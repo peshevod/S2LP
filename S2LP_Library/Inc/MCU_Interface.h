@@ -26,12 +26,16 @@ typedef S2LPStatus StatusBytes;
 
 void S2LPSpiInit(void);
 void S2LPSpiDeinit(void);
+void S2LPEnterShutdown(void);
+void S2LPExitShutdown(void);
 StatusBytes S2LPSpiWriteRegisters(uint8_t cRegAddress, uint8_t cNbBytes, uint8_t* pcBuffer);
 StatusBytes S2LPSpiReadRegisters(uint8_t cRegAddress, uint8_t cNbBytes, uint8_t* pcBuffer);
 StatusBytes S2LPSpiCommandStrobes(uint8_t cCommandCode);
 StatusBytes S2LPSpiWriteFifo(uint8_t cNbBytes, uint8_t* pcBuffer);
 StatusBytes S2LPSpiReadFifo(uint8_t cNbBytes, uint8_t* pcBuffer);
-
+void write_reg(uint8_t ad,uint8_t value);
+uint8_t read_reg(uint8_t ad);
+void send_command(char cmd);
 
 #ifdef	__cplusplus
 }

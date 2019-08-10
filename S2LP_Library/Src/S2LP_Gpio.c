@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "S2LP_Gpio.h"
 #include "MCU_Interface.h"
+#include "main.h"
 
 
 /** @addtogroup S2LP_Libraries
@@ -157,6 +158,7 @@
 /** @defgroup Gpio_Private_Functions            GPIO Private Functions
  * @{
  */
+
 
 /**
  * @brief  Initialize the S2LP GPIOx according to the specified
@@ -302,10 +304,11 @@ void S2LPGpioIrqInit(S2LPIrqs* pxIrqInit)
  */
 void S2LPGpioIrqConfig(IrqList xIrq, SFunctionalState xNewState)
 {
-  uint8_t tmpBuffer[4];
+    printf("xIrq=%ld\r",xIrq);
+    uint8_t tmpBuffer[4];
   uint32_t tempValue = 0;
 
-  s_assert_param(IS_S2LP_IRQ_LIST(xIrq));
+//  s_assert_param(IS_S2LP_IRQ_LIST(xIrq));
   s_assert_param(IS_SFUNCTIONAL_STATE(xNewState));
 
   S2LPSpiReadRegisters(IRQ_MASK3_ADDR, 4, tmpBuffer);
@@ -322,6 +325,8 @@ void S2LPGpioIrqConfig(IrqList xIrq, SFunctionalState xNewState)
   else {
     tempValue |= (xIrq);
   }
+  
+  printf("IRQMask=%#08lX %ld\r",tempValue,xIrq);
 
   /* Build the array of bytes to write in the IRQ_MASK registers */
   for(char j=0; j<4; j++) {
@@ -355,12 +360,14 @@ void S2LPGpioIrqGetMask(S2LPIrqs* pxIrqMask)
   uint8_t* pIrqPointer = (uint8_t*)pxIrqMask;
 
   g_xStatus = S2LPSpiReadRegisters(IRQ_MASK3_ADDR, 4, tmp);
+//  printf("get IRQMask=0x%02hhX 0x%02hhX 0x%02hhX 0x%02hhX\r",tmp[0],tmp[1],tmp[2],tmp[3]);
+
 
   for(char i=0; i<4; i++) {
     *pIrqPointer = tmp[3-i];
     pIrqPointer++;
   }
-
+  printf("IRQMask=0x%08lX\r",((uint32_t*)pxIrqMask)[0]);
 }
 
 

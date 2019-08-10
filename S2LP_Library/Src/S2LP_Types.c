@@ -141,6 +141,7 @@ void S2LPRefreshStatus(void)
     g_xStatus = S2LPSpiReadRegisters(MC_STATE0_ADDR, 1, &tempRegValue);
   }
   while((tempRegValue>>1)!=g_xStatus.MC_STATE);
+  printf("Refresh Status %02hhx\r",g_xStatus.MC_STATE);
 
 }
 

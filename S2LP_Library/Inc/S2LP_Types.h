@@ -119,15 +119,15 @@ typedef enum {
  *        change opportunely the fields order when use a different endianness.
  */
 typedef struct {
-  uint8_t XO_ON:1;           /*!< XO is operating state */
-//  S2LPState MC_STATE: 7;     /*!< The state of the Main Controller of S2LP @ref S2LPState */
-  uint8_t MC_STATE: 7;     /*!< The state of the Main Controller of S2LP @ref S2LPState */
   uint8_t ERROR_LOCK: 1;     /*!< RCO calibration error */
   uint8_t RX_FIFO_EMPTY: 1;  /*!< RX FIFO is empty */
   uint8_t TX_FIFO_FULL: 1;   /*!< TX FIFO is full */
   uint8_t ANT_SELECT: 1;     /*!< Currently selected antenna */
   uint8_t RCCAL_OK: 1;       /*!< RCO successfully terminated */
   uint8_t : 3;               /*!< This 3 bits field are reserved and equal to 2 */
+  uint8_t XO_ON:1;           /*!< XO is operating state */
+//  S2LPState MC_STATE: 7;     /*!< The state of the Main Controller of S2LP @ref S2LPState */
+  uint8_t MC_STATE: 7;     /*!< The state of the Main Controller of S2LP @ref S2LPState */
 }S2LPStatus;
 
 

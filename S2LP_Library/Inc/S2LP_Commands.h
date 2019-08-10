@@ -43,6 +43,7 @@
 
 #include "S2LP_Regs.h"
 #include "S2LP_Types.h"
+#include "mcc_generated_files/mcc.h"
 
 
 #ifdef __cplusplus
