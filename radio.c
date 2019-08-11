@@ -24,7 +24,7 @@ PktBasicInit xBasicInit={
  
  
 SGpioInit xGpioIRQ={
-   S2LP_GPIO_3,
+   S2LP_GPIO_0,
    S2LP_GPIO_MODE_DIGITAL_OUTPUT_LP,
    S2LP_GPIO_DIG_OUT_IRQ
 };
@@ -32,8 +32,8 @@ SGpioInit xGpioIRQ={
 void radio_init()
 {
     /* S2LP ON */
-//   S2LPEnterShutdown();
-//   S2LPExitShutdown();
+   S2LPEnterShutdown();
+   S2LPExitShutdown();
     
     S2LPRadioSetXtalFrequency(XTAL_FREQ);
 
@@ -48,12 +48,17 @@ void radio_init()
    S2LPRadioSetPALeveldBm(7,POWER_DBM);
    S2LPRadioSetPALevelMaxIndex(7);
    
+   uint8_t tmp;
+    S2LPSpiReadRegisters(0x78, 1, &tmp);
+    tmp|=0x04;
+    S2LPSpiWriteRegisters(0x78, 1, &tmp);
+   
    /* S2LP Packet config */
    S2LPPktBasicInit(&xBasicInit);
    
    /* S2LP IRQs enable */
    S2LPGpioIrqDeInit(NULL);
-   S2LPGpioIrqConfig(TX_DATA_SENT , S_ENABLE);
+   S2LPGpioIrqConfig(IRQ_TX_DATA_SENT , S_ENABLE);
    
    /* payload length config */
    S2LPPktBasicSetPayloadLength(20);
