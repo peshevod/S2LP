@@ -114,7 +114,7 @@ volatile S2LPStatus g_xStatus;
 void s_assert_failed(uint8_t* file, uint32_t line)
 {
   /* User can add his own implementation to report the file name and line number */
-  printf("Wrong parameters value: file %s on line %d\r\n", file, line);
+  //printf("Wrong parameters value: file %s on line %d\r\n", file, line);
 
   /* Infinite loop */
   while (1)
@@ -141,7 +141,7 @@ void S2LPRefreshStatus(void)
     g_xStatus = S2LPSpiReadRegisters(MC_STATE0_ADDR, 1, &tempRegValue);
   }
   while((tempRegValue>>1)!=g_xStatus.MC_STATE);
-  printf("Refresh Status %02hhx\r",g_xStatus.MC_STATE);
+  //printf("Refresh Status %02hhx\r",g_xStatus.MC_STATE);
 
 }
 

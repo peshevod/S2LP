@@ -66,8 +66,8 @@ void SPI1_Initialize(void)
 {
     // Set the SPI1 module to the options selected in the User Interface
     
-    // SMP Middle; CKE Idle to Active; 
-    SSP1STAT = 0x00;
+    // SMP Middle; CKE Active to Idle; 
+    SSP1STAT = 0x40;
     
     // SSPEN enabled; CKP Idle:Low, Active:High; SSPM FOSC/4; 
     SSP1CON1 = 0x20;

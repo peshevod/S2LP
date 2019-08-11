@@ -121,7 +121,7 @@ void S2LPCmdStrobeCommand(S2LPCmd xCommandCode)
   s_assert_param(IS_S2LP_CMD(xCommandCode));
 
   g_xStatus = S2LPSpiCommandStrobes((uint8_t) xCommandCode);
-  printf("cmd=0x%02x status=0x%02x\r",xCommandCode,g_xStatus.MC_STATE);
+  //printf("cmd=0x%02x status=0x%02x\r",xCommandCode,g_xStatus.MC_STATE);
 }
 
 

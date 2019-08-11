@@ -1,6 +1,6 @@
 #include "MCU_Interface.h"
 #include "mcc_generated_files/mcc.h"
-#include "main.h"
+//#include "main.h"
 #include "timers.h"
 
 #define MY_BUFFER_SIZE 32

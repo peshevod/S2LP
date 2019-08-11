@@ -12,11 +12,16 @@
 extern "C" {
 #endif
 
-#define S_WAIT_COMMAND      0
-#define S_WAIT_PAR          1
-#define S_DEFINE_COMMAND    2
+#define BUF_LEN 256
+
     
-void start_shell(void);
+#define send_prompt()   {send_chars(prompt,4);}  
+#define send_error()   {send_chars(err,11);}  
+#define send_exit()   {send_chars(ex,8);}  
+    
+    
+void start_x_shell(void);
+void send_chars(char* x, uint8_t len);
 
 #ifdef	__cplusplus
 }

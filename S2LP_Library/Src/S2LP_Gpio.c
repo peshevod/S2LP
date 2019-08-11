@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "S2LP_Gpio.h"
 #include "MCU_Interface.h"
-#include "main.h"
+//#include "main.h"
 
 
 /** @addtogroup S2LP_Libraries
@@ -304,7 +304,7 @@ void S2LPGpioIrqInit(S2LPIrqs* pxIrqInit)
  */
 void S2LPGpioIrqConfig(IrqList xIrq, SFunctionalState xNewState)
 {
-    printf("xIrq=%ld\r",xIrq);
+//    printf("xIrq=%ld\r",xIrq);
     uint8_t tmpBuffer[4];
   uint32_t tempValue = 0;
 
@@ -326,7 +326,7 @@ void S2LPGpioIrqConfig(IrqList xIrq, SFunctionalState xNewState)
     tempValue |= (xIrq);
   }
   
-  printf("IRQMask=%#08lX %ld\r",tempValue,xIrq);
+  //printf("IRQMask=%#08lX %ld\r",tempValue,xIrq);
 
   /* Build the array of bytes to write in the IRQ_MASK registers */
   for(char j=0; j<4; j++) {
@@ -367,7 +367,7 @@ void S2LPGpioIrqGetMask(S2LPIrqs* pxIrqMask)
     *pIrqPointer = tmp[3-i];
     pIrqPointer++;
   }
-  printf("IRQMask=0x%08lX\r",((uint32_t*)pxIrqMask)[0]);
+  //printf("IRQMask=0x%08lX\r",((uint32_t*)pxIrqMask)[0]);
 }
 
 

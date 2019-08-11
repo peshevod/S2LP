@@ -85,45 +85,45 @@
 #define GPIO0_SetAnalogMode()      do { ANSELAbits.ANSA2 = 1; } while(0)
 #define GPIO0_SetDigitalMode()     do { ANSELAbits.ANSA2 = 0; } while(0)
 
-// get/set SET3 aliases
-#define SET3_TRIS                 TRISAbits.TRISA4
-#define SET3_LAT                  LATAbits.LATA4
-#define SET3_PORT                 PORTAbits.RA4
-#define SET3_WPU                  WPUAbits.WPUA4
-#define SET3_OD                   ODCONAbits.ODCA4
-#define SET3_ANS                  ANSELAbits.ANSA4
-#define SET3_SetHigh()            do { LATAbits.LATA4 = 1; } while(0)
-#define SET3_SetLow()             do { LATAbits.LATA4 = 0; } while(0)
-#define SET3_Toggle()             do { LATAbits.LATA4 = ~LATAbits.LATA4; } while(0)
-#define SET3_GetValue()           PORTAbits.RA4
-#define SET3_SetDigitalInput()    do { TRISAbits.TRISA4 = 1; } while(0)
-#define SET3_SetDigitalOutput()   do { TRISAbits.TRISA4 = 0; } while(0)
-#define SET3_SetPullup()          do { WPUAbits.WPUA4 = 1; } while(0)
-#define SET3_ResetPullup()        do { WPUAbits.WPUA4 = 0; } while(0)
-#define SET3_SetPushPull()        do { ODCONAbits.ODCA4 = 0; } while(0)
-#define SET3_SetOpenDrain()       do { ODCONAbits.ODCA4 = 1; } while(0)
-#define SET3_SetAnalogMode()      do { ANSELAbits.ANSA4 = 1; } while(0)
-#define SET3_SetDigitalMode()     do { ANSELAbits.ANSA4 = 0; } while(0)
+// get/set JP3 aliases
+#define JP3_TRIS                 TRISAbits.TRISA4
+#define JP3_LAT                  LATAbits.LATA4
+#define JP3_PORT                 PORTAbits.RA4
+#define JP3_WPU                  WPUAbits.WPUA4
+#define JP3_OD                   ODCONAbits.ODCA4
+#define JP3_ANS                  ANSELAbits.ANSA4
+#define JP3_SetHigh()            do { LATAbits.LATA4 = 1; } while(0)
+#define JP3_SetLow()             do { LATAbits.LATA4 = 0; } while(0)
+#define JP3_Toggle()             do { LATAbits.LATA4 = ~LATAbits.LATA4; } while(0)
+#define JP3_GetValue()           PORTAbits.RA4
+#define JP3_SetDigitalInput()    do { TRISAbits.TRISA4 = 1; } while(0)
+#define JP3_SetDigitalOutput()   do { TRISAbits.TRISA4 = 0; } while(0)
+#define JP3_SetPullup()          do { WPUAbits.WPUA4 = 1; } while(0)
+#define JP3_ResetPullup()        do { WPUAbits.WPUA4 = 0; } while(0)
+#define JP3_SetPushPull()        do { ODCONAbits.ODCA4 = 0; } while(0)
+#define JP3_SetOpenDrain()       do { ODCONAbits.ODCA4 = 1; } while(0)
+#define JP3_SetAnalogMode()      do { ANSELAbits.ANSA4 = 1; } while(0)
+#define JP3_SetDigitalMode()     do { ANSELAbits.ANSA4 = 0; } while(0)
 
-// get/set SET2 aliases
-#define SET2_TRIS                 TRISAbits.TRISA5
-#define SET2_LAT                  LATAbits.LATA5
-#define SET2_PORT                 PORTAbits.RA5
-#define SET2_WPU                  WPUAbits.WPUA5
-#define SET2_OD                   ODCONAbits.ODCA5
-#define SET2_ANS                  ANSELAbits.ANSA5
-#define SET2_SetHigh()            do { LATAbits.LATA5 = 1; } while(0)
-#define SET2_SetLow()             do { LATAbits.LATA5 = 0; } while(0)
-#define SET2_Toggle()             do { LATAbits.LATA5 = ~LATAbits.LATA5; } while(0)
-#define SET2_GetValue()           PORTAbits.RA5
-#define SET2_SetDigitalInput()    do { TRISAbits.TRISA5 = 1; } while(0)
-#define SET2_SetDigitalOutput()   do { TRISAbits.TRISA5 = 0; } while(0)
-#define SET2_SetPullup()          do { WPUAbits.WPUA5 = 1; } while(0)
-#define SET2_ResetPullup()        do { WPUAbits.WPUA5 = 0; } while(0)
-#define SET2_SetPushPull()        do { ODCONAbits.ODCA5 = 0; } while(0)
-#define SET2_SetOpenDrain()       do { ODCONAbits.ODCA5 = 1; } while(0)
-#define SET2_SetAnalogMode()      do { ANSELAbits.ANSA5 = 1; } while(0)
-#define SET2_SetDigitalMode()     do { ANSELAbits.ANSA5 = 0; } while(0)
+// get/set JP2 aliases
+#define JP2_TRIS                 TRISAbits.TRISA5
+#define JP2_LAT                  LATAbits.LATA5
+#define JP2_PORT                 PORTAbits.RA5
+#define JP2_WPU                  WPUAbits.WPUA5
+#define JP2_OD                   ODCONAbits.ODCA5
+#define JP2_ANS                  ANSELAbits.ANSA5
+#define JP2_SetHigh()            do { LATAbits.LATA5 = 1; } while(0)
+#define JP2_SetLow()             do { LATAbits.LATA5 = 0; } while(0)
+#define JP2_Toggle()             do { LATAbits.LATA5 = ~LATAbits.LATA5; } while(0)
+#define JP2_GetValue()           PORTAbits.RA5
+#define JP2_SetDigitalInput()    do { TRISAbits.TRISA5 = 1; } while(0)
+#define JP2_SetDigitalOutput()   do { TRISAbits.TRISA5 = 0; } while(0)
+#define JP2_SetPullup()          do { WPUAbits.WPUA5 = 1; } while(0)
+#define JP2_ResetPullup()        do { WPUAbits.WPUA5 = 0; } while(0)
+#define JP2_SetPushPull()        do { ODCONAbits.ODCA5 = 0; } while(0)
+#define JP2_SetOpenDrain()       do { ODCONAbits.ODCA5 = 1; } while(0)
+#define JP2_SetAnalogMode()      do { ANSELAbits.ANSA5 = 1; } while(0)
+#define JP2_SetDigitalMode()     do { ANSELAbits.ANSA5 = 0; } while(0)
 
 // get/set SDI1 aliases
 #define SDI1_TRIS                 TRISBbits.TRISB4
@@ -269,45 +269,45 @@
 #define SDN_SetAnalogMode()      do { ANSELCbits.ANSC3 = 1; } while(0)
 #define SDN_SetDigitalMode()     do { ANSELCbits.ANSC3 = 0; } while(0)
 
-// get/set SENSOR_JP5 aliases
-#define SENSOR_JP5_TRIS                 TRISCbits.TRISC4
-#define SENSOR_JP5_LAT                  LATCbits.LATC4
-#define SENSOR_JP5_PORT                 PORTCbits.RC4
-#define SENSOR_JP5_WPU                  WPUCbits.WPUC4
-#define SENSOR_JP5_OD                   ODCONCbits.ODCC4
-#define SENSOR_JP5_ANS                  ANSELCbits.ANSC4
-#define SENSOR_JP5_SetHigh()            do { LATCbits.LATC4 = 1; } while(0)
-#define SENSOR_JP5_SetLow()             do { LATCbits.LATC4 = 0; } while(0)
-#define SENSOR_JP5_Toggle()             do { LATCbits.LATC4 = ~LATCbits.LATC4; } while(0)
-#define SENSOR_JP5_GetValue()           PORTCbits.RC4
-#define SENSOR_JP5_SetDigitalInput()    do { TRISCbits.TRISC4 = 1; } while(0)
-#define SENSOR_JP5_SetDigitalOutput()   do { TRISCbits.TRISC4 = 0; } while(0)
-#define SENSOR_JP5_SetPullup()          do { WPUCbits.WPUC4 = 1; } while(0)
-#define SENSOR_JP5_ResetPullup()        do { WPUCbits.WPUC4 = 0; } while(0)
-#define SENSOR_JP5_SetPushPull()        do { ODCONCbits.ODCC4 = 0; } while(0)
-#define SENSOR_JP5_SetOpenDrain()       do { ODCONCbits.ODCC4 = 1; } while(0)
-#define SENSOR_JP5_SetAnalogMode()      do { ANSELCbits.ANSC4 = 1; } while(0)
-#define SENSOR_JP5_SetDigitalMode()     do { ANSELCbits.ANSC4 = 0; } while(0)
+// get/set JP5 aliases
+#define JP5_TRIS                 TRISCbits.TRISC4
+#define JP5_LAT                  LATCbits.LATC4
+#define JP5_PORT                 PORTCbits.RC4
+#define JP5_WPU                  WPUCbits.WPUC4
+#define JP5_OD                   ODCONCbits.ODCC4
+#define JP5_ANS                  ANSELCbits.ANSC4
+#define JP5_SetHigh()            do { LATCbits.LATC4 = 1; } while(0)
+#define JP5_SetLow()             do { LATCbits.LATC4 = 0; } while(0)
+#define JP5_Toggle()             do { LATCbits.LATC4 = ~LATCbits.LATC4; } while(0)
+#define JP5_GetValue()           PORTCbits.RC4
+#define JP5_SetDigitalInput()    do { TRISCbits.TRISC4 = 1; } while(0)
+#define JP5_SetDigitalOutput()   do { TRISCbits.TRISC4 = 0; } while(0)
+#define JP5_SetPullup()          do { WPUCbits.WPUC4 = 1; } while(0)
+#define JP5_ResetPullup()        do { WPUCbits.WPUC4 = 0; } while(0)
+#define JP5_SetPushPull()        do { ODCONCbits.ODCC4 = 0; } while(0)
+#define JP5_SetOpenDrain()       do { ODCONCbits.ODCC4 = 1; } while(0)
+#define JP5_SetAnalogMode()      do { ANSELCbits.ANSC4 = 1; } while(0)
+#define JP5_SetDigitalMode()     do { ANSELCbits.ANSC4 = 0; } while(0)
 
-// get/set SENSOR_JP4 aliases
-#define SENSOR_JP4_TRIS                 TRISCbits.TRISC5
-#define SENSOR_JP4_LAT                  LATCbits.LATC5
-#define SENSOR_JP4_PORT                 PORTCbits.RC5
-#define SENSOR_JP4_WPU                  WPUCbits.WPUC5
-#define SENSOR_JP4_OD                   ODCONCbits.ODCC5
-#define SENSOR_JP4_ANS                  ANSELCbits.ANSC5
-#define SENSOR_JP4_SetHigh()            do { LATCbits.LATC5 = 1; } while(0)
-#define SENSOR_JP4_SetLow()             do { LATCbits.LATC5 = 0; } while(0)
-#define SENSOR_JP4_Toggle()             do { LATCbits.LATC5 = ~LATCbits.LATC5; } while(0)
-#define SENSOR_JP4_GetValue()           PORTCbits.RC5
-#define SENSOR_JP4_SetDigitalInput()    do { TRISCbits.TRISC5 = 1; } while(0)
-#define SENSOR_JP4_SetDigitalOutput()   do { TRISCbits.TRISC5 = 0; } while(0)
-#define SENSOR_JP4_SetPullup()          do { WPUCbits.WPUC5 = 1; } while(0)
-#define SENSOR_JP4_ResetPullup()        do { WPUCbits.WPUC5 = 0; } while(0)
-#define SENSOR_JP4_SetPushPull()        do { ODCONCbits.ODCC5 = 0; } while(0)
-#define SENSOR_JP4_SetOpenDrain()       do { ODCONCbits.ODCC5 = 1; } while(0)
-#define SENSOR_JP4_SetAnalogMode()      do { ANSELCbits.ANSC5 = 1; } while(0)
-#define SENSOR_JP4_SetDigitalMode()     do { ANSELCbits.ANSC5 = 0; } while(0)
+// get/set JP4 aliases
+#define JP4_TRIS                 TRISCbits.TRISC5
+#define JP4_LAT                  LATCbits.LATC5
+#define JP4_PORT                 PORTCbits.RC5
+#define JP4_WPU                  WPUCbits.WPUC5
+#define JP4_OD                   ODCONCbits.ODCC5
+#define JP4_ANS                  ANSELCbits.ANSC5
+#define JP4_SetHigh()            do { LATCbits.LATC5 = 1; } while(0)
+#define JP4_SetLow()             do { LATCbits.LATC5 = 0; } while(0)
+#define JP4_Toggle()             do { LATCbits.LATC5 = ~LATCbits.LATC5; } while(0)
+#define JP4_GetValue()           PORTCbits.RC5
+#define JP4_SetDigitalInput()    do { TRISCbits.TRISC5 = 1; } while(0)
+#define JP4_SetDigitalOutput()   do { TRISCbits.TRISC5 = 0; } while(0)
+#define JP4_SetPullup()          do { WPUCbits.WPUC5 = 1; } while(0)
+#define JP4_ResetPullup()        do { WPUCbits.WPUC5 = 0; } while(0)
+#define JP4_SetPushPull()        do { ODCONCbits.ODCC5 = 0; } while(0)
+#define JP4_SetOpenDrain()       do { ODCONCbits.ODCC5 = 1; } while(0)
+#define JP4_SetAnalogMode()      do { ANSELCbits.ANSC5 = 1; } while(0)
+#define JP4_SetDigitalMode()     do { ANSELCbits.ANSC5 = 0; } while(0)
 
 // get/set GPIO1 aliases
 #define GPIO1_TRIS                 TRISCbits.TRISC6
@@ -372,6 +372,90 @@ void PIN_MANAGER_Initialize (void);
     PIN_MANAGER_IOC();
  */
 void PIN_MANAGER_IOC(void);
+
+
+/**
+ * @Param
+    none
+ * @Returns
+    none
+ * @Description
+    Interrupt on Change Handler for the IOCAF2 pin functionality
+ * @Example
+    IOCAF2_ISR();
+ */
+void IOCAF2_ISR(void);
+
+/**
+  @Summary
+    Interrupt Handler Setter for IOCAF2 pin interrupt-on-change functionality
+
+  @Description
+    Allows selecting an interrupt handler for IOCAF2 at application runtime
+    
+  @Preconditions
+    Pin Manager intializer called
+
+  @Returns
+    None.
+
+  @Param
+    InterruptHandler function pointer.
+
+  @Example
+    PIN_MANAGER_Initialize();
+    IOCAF2_SetInterruptHandler(MyInterruptHandler);
+
+*/
+void IOCAF2_SetInterruptHandler(void (* InterruptHandler)(void));
+
+/**
+  @Summary
+    Dynamic Interrupt Handler for IOCAF2 pin
+
+  @Description
+    This is a dynamic interrupt handler to be used together with the IOCAF2_SetInterruptHandler() method.
+    This handler is called every time the IOCAF2 ISR is executed and allows any function to be registered at runtime.
+    
+  @Preconditions
+    Pin Manager intializer called
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    PIN_MANAGER_Initialize();
+    IOCAF2_SetInterruptHandler(IOCAF2_InterruptHandler);
+
+*/
+extern void (*IOCAF2_InterruptHandler)(void);
+
+/**
+  @Summary
+    Default Interrupt Handler for IOCAF2 pin
+
+  @Description
+    This is a predefined interrupt handler to be used together with the IOCAF2_SetInterruptHandler() method.
+    This handler is called every time the IOCAF2 ISR is executed. 
+    
+  @Preconditions
+    Pin Manager intializer called
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    PIN_MANAGER_Initialize();
+    IOCAF2_SetInterruptHandler(IOCAF2_DefaultInterruptHandler);
+
+*/
+void IOCAF2_DefaultInterruptHandler(void);
 
 
 /**

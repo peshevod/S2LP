@@ -45,6 +45,7 @@
 #include "radio.h"
 #include "S2LP_Config.h"
 #include "timers.h"
+#include "shell.h"
 
 /*
                          Main application
@@ -53,7 +54,14 @@
 uint8_t vectcTxBuff[20]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
 volatile SFlagStatus xTxDoneFlag = S_RESET;
 S2LPIrqs xIrqStatus;
- 
+volatile uint8_t irqf;
+extern volatile S2LPStatus g_xStatus;
+
+void EXTI_Callback_INT(void)
+{
+    irqf++;
+ }
+
 
 
 void main(void)
@@ -65,29 +73,33 @@ void main(void)
     // Use the following macros to:
 
     // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable();
 
     // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
     // Disable the Global Interrupts
     //INTERRUPT_GlobalInterruptDisable();
 
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
-
+    printf("Begin\r\n");
     timers_init();
-    radio_init();
     
+    start_x_shell();
+    
+    IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
     while (1)
     {
-#ifdef USE_VCOM
+        radio_init();
+        irqf=0;
+//ifdef USE_VCOM
      printf("A data to transmit: [");
      
      for(uint8_t i=0 ; i<20 ; i++)
        printf("%d ", vectcTxBuff[i]);
      printf("]\n\r");
-#endif
+//#endif
      
      /* fit the TX FIFO */
      S2LPCmdStrobeFlushTxFifo();
@@ -97,8 +109,31 @@ void main(void)
      S2LPCmdStrobeTx();
      
      /* wait for TX done */
-     while(!xTxDoneFlag);
-     xTxDoneFlag = S_RESET;
+     while(1)
+     {
+         if(irqf)
+         {
+             S2LPGpioIrqGetStatus(&xIrqStatus);
+             printf("IRQ 0x%08lx\r\n",((uint32_t*)(&xIrqStatus))[0]);
+             if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
+             {
+                 printf("Data sent\r\n");
+             }
+             irqf=0;
+             break;
+         }
+         else
+         {
+            S2LPRefreshStatus();
+            printf("Refresh Status 0x%02hhx\r",g_xStatus.MC_STATE);
+            if(g_xStatus.MC_STATE==0x14)
+            {
+                S2LPEnterShutdown();
+                S2LPExitShutdown();
+                break;
+            }
+         }
+     }
  
      /* pause between two transmissions */
      delay_ms(500);
