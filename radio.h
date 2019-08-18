@@ -27,11 +27,12 @@ extern "C" {
 #endif
  
 #define MODULATION_SELECT           MOD_2FSK
+//#define MODULATION_SELECT           MOD_NO_MOD
 #define DATARATE                    38400
 #define FREQ_DEVIATION              20000
 #define BANDWIDTH                   100000
  
-#define POWER_DBM                   12/*.0*/
+#define POWER_DBM                   14/*.0*/
  
  
    
@@ -56,6 +57,8 @@ extern "C" {
     
 #define XTAL_FREQ               50000000
 
+void radio_tx_init(void);
+void radio_rx_init(void);
 void radio_init(void);
 
 #ifdef	__cplusplus

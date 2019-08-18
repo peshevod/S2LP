@@ -220,39 +220,39 @@ typedef struct {
  *        change opportunely the fields order when use a different endianness.
  */
 typedef struct {
-  SFlagStatus  IRQ_RX_DATA_READY:1;            /*!< IRQ: RX data ready */
-  SFlagStatus  IRQ_RX_DATA_DISC:1;             /*!< IRQ: RX data discarded (upon filtering) */
-  SFlagStatus  IRQ_TX_DATA_SENT:1;             /*!< IRQ: TX data sent */
-  SFlagStatus  IRQ_MAX_RE_TX_REACH:1;          /*!< IRQ: Max re-TX reached */
-  SFlagStatus  IRQ_CRC_ERROR:1;                /*!< IRQ: CRC error */
-  SFlagStatus  IRQ_TX_FIFO_ERROR:1;            /*!< IRQ: TX FIFO underflow/overflow error */
-  SFlagStatus  IRQ_RX_FIFO_ERROR:1;            /*!< IRQ: RX FIFO underflow/overflow error */
-  SFlagStatus  IRQ_TX_FIFO_ALMOST_FULL:1;      /*!< IRQ: TX FIFO almost full */
+  SFlagStatus  RX_DATA_READY:1;            /*!< IRQ: RX data ready */
+  SFlagStatus  RX_DATA_DISC:1;             /*!< IRQ: RX data discarded (upon filtering) */
+  SFlagStatus  TX_DATA_SENT:1;             /*!< IRQ: TX data sent */
+  SFlagStatus  MAX_RE_TX_REACH:1;          /*!< IRQ: Max re-TX reached */
+  SFlagStatus  CRC_ERROR:1;                /*!< IRQ: CRC error */
+  SFlagStatus  TX_FIFO_ERROR:1;            /*!< IRQ: TX FIFO underflow/overflow error */
+  SFlagStatus  RX_FIFO_ERROR:1;            /*!< IRQ: RX FIFO underflow/overflow error */
+  SFlagStatus  TX_FIFO_ALMOST_FULL:1;      /*!< IRQ: TX FIFO almost full */
 
-  SFlagStatus  IRQ_TX_FIFO_ALMOST_EMPTY:1;     /*!< IRQ: TX FIFO almost empty */
-  SFlagStatus  IRQ_RX_FIFO_ALMOST_FULL:1;      /*!< IRQ: RX FIFO almost full */
-  SFlagStatus  IRQ_RX_FIFO_ALMOST_EMPTY:1;     /*!< IRQ: RX FIFO almost empty  */
-  SFlagStatus  IRQ_MAX_BO_CCA_REACH:1;         /*!< IRQ: Max number of back-off during CCA */
-  SFlagStatus  IRQ_VALID_PREAMBLE:1;           /*!< IRQ: Valid preamble detected */
-  SFlagStatus  IRQ_VALID_SYNC:1;               /*!< IRQ: Sync word detected */
-  SFlagStatus  IRQ_RSSI_ABOVE_TH:1;            /*!< IRQ: RSSI above threshold */
-  SFlagStatus  IRQ_WKUP_TOUT_LDC:1;            /*!< IRQ: Wake-up timeout in LDC mode */
+  SFlagStatus  TX_FIFO_ALMOST_EMPTY:1;     /*!< IRQ: TX FIFO almost empty */
+  SFlagStatus  RX_FIFO_ALMOST_FULL:1;      /*!< IRQ: RX FIFO almost full */
+  SFlagStatus  RX_FIFO_ALMOST_EMPTY:1;     /*!< IRQ: RX FIFO almost empty  */
+  SFlagStatus  MAX_BO_CCA_REACH:1;         /*!< IRQ: Max number of back-off during CCA */
+  SFlagStatus  VALID_PREAMBLE:1;           /*!< IRQ: Valid preamble detected */
+  SFlagStatus  VALID_SYNC:1;               /*!< IRQ: Sync word detected */
+  SFlagStatus  RSSI_ABOVE_TH:1;            /*!< IRQ: RSSI above threshold */
+  SFlagStatus  WKUP_TOUT_LDC:1;            /*!< IRQ: Wake-up timeout in LDC mode */
 
-  SFlagStatus  IRQ_READY:1;                    /*!< IRQ: READY state */
-  SFlagStatus  IRQ_STANDBY_DELAYED:1;          /*!< IRQ: STANDBY state after MCU_CK_CONF_CLOCK_TAIL_X clock cycles */
-  SFlagStatus  IRQ_LOW_BATT_LVL:1;             /*!< IRQ: Battery level below threshold*/
-  SFlagStatus  IRQ_POR:1;                      /*!< IRQ: Power On Reset */
-  SFlagStatus  IRQ_BOR:1;                      /*!< IRQ: Brown out event (both accurate and inaccurate)*/
-  SFlagStatus  IRQ_LOCK:1;                     /*!< IRQ: LOCK state */
-  SFlagStatus  IRQ_VCO_CALIBRATION_END:1;      /*!< IRQ: End of VCO calibration procedure */
-  SFlagStatus  IRQ_PA_CALIBRATION_END:1;       /*!< IRQ: End of PA calibration procedure */
+  SFlagStatus  READY:1;                    /*!< IRQ: READY state */
+  SFlagStatus  STANDBY_DELAYED:1;          /*!< IRQ: STANDBY state after MCU_CK_CONF_CLOCK_TAIL_X clock cycles */
+  SFlagStatus  LOW_BATT_LVL:1;             /*!< IRQ: Battery level below threshold*/
+  SFlagStatus  POR:1;                      /*!< IRQ: Power On Reset */
+  SFlagStatus  BOR:1;                      /*!< IRQ: Brown out event (both accurate and inaccurate)*/
+  SFlagStatus  LOCK:1;                     /*!< IRQ: LOCK state */
+  SFlagStatus  VCO_CALIBRATION_END:1;      /*!< IRQ: End of VCO calibration procedure */
+  SFlagStatus  PA_CALIBRATION_END:1;       /*!< IRQ: End of PA calibration procedure */
   
-  SFlagStatus  IRQ_PM_COUNT_EXPIRED:1;         /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
-  SFlagStatus  IRQ_XO_COUNT_EXPIRED:1;         /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
-  SFlagStatus  IRQ_TX_START_TIME:1;            /*!< IRQ: only for debug; TX circuitry startup time; see TX_START_COUNTER */
-  SFlagStatus  IRQ_RX_START_TIME:1;            /*!< IRQ: only for debug; RX circuitry startup time; see TX_START_COUNTER */
-  SFlagStatus  IRQ_RX_TIMEOUT:1;               /*!< IRQ: RX operation timeout */
-  SFlagStatus  IRQ_RX_SNIFF_TIMEOUT:1;         /*!< IRQ: RX sniff opeartion timeout */
+  SFlagStatus  PM_COUNT_EXPIRED:1;         /*!< IRQ: only for debug; Power Management startup timer expiration (see reg PM_START_COUNTER, 0xB5) */
+  SFlagStatus  XO_COUNT_EXPIRED:1;         /*!< IRQ: only for debug; Crystal oscillator settling time counter expired */
+  SFlagStatus  TX_START_TIME:1;            /*!< IRQ: only for debug; TX circuitry startup time; see TX_START_COUNTER */
+  SFlagStatus  RX_START_TIME:1;            /*!< IRQ: only for debug; RX circuitry startup time; see TX_START_COUNTER */
+  SFlagStatus  RX_TIMEOUT:1;               /*!< IRQ: RX operation timeout */
+  SFlagStatus  RX_SNIFF_TIMEOUT:1;         /*!< IRQ: RX sniff opeartion timeout */
   SFlagStatus  :2;                             /*!< Reserved bit */
 } S2LPIrqs;
 

@@ -22,22 +22,23 @@ char pars[] = {
     0
 };
 uint8_t npars = 6;
+char t[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-extern volatile uint8_t eusart1RxCount;
 char c_buf[BUF_LEN], val_buf[BUF_LEN];
 uint8_t c_len;
-char prompt[] = {'\r', '\n', '>', ' '};
-char err[] = {'\r', '\n', 'E', 'r', 'r', 'o', 'r', '\r', '\n', '>', ' '};
-char ex[] = {'\r', '\n', 'E', 'x', 'i', 't', '\r', '\n'};
+char prompt[] = {"\r\n> "};
+char err[] = {"\r\nError\r\n> "};
+char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
 
-void send_chars(char* x, uint8_t len) {
-    for (uint8_t i = 0; i < len; i++) EUSART1_Write(x[i]);
+void send_chars(char* x) {
+    uint8_t i=0;
+    while(x[i]!=0) EUSART1_Write(x[i++]);
     while (!EUSART1_is_tx_done());
 }
 
 void empty_RXbuffer() {
-    while (eusart1RxCount != 0) EUSART1_Read();
+    while (EUSART1_is_rx_ready()) EUSART1_Read();
 }
 
 uint8_t stringToUInt32(char* str, uint32_t* val) //it is a function made to convert the string value to integer value.
@@ -182,6 +183,38 @@ char* ui8toa(uint8_t i, char* b) {
     return b;
 }
 
+char* ui8tox(uint8_t i, char* b)
+{
+    char* p = b;
+    *p++='0';
+    *p++='x';
+    *p++=t[i>>4];
+    *p++=t[i&0x0f];
+    *p=0;
+    return b;
+}
+
+char* ui32tox(uint8_t i, char* b)
+{
+    uint8_t* ch;
+    ch=((uint8_t*)(&i));
+    char* p = b;
+    *p++='0';
+    *p++='x';
+    *p++=t[ch[3]>>4];
+    *p++=t[ch[3]&0x0F];
+    *p++=t[ch[2]>>4];
+    *p++=t[ch[2]&0x0F];
+    *p++=t[ch[1]>>4];
+    *p++=t[ch[1]&0x0F];
+    *p++=t[ch[0]>>4];
+    *p++=t[ch[0]&0x0F];
+    *p=0;
+    return b;
+}
+
+
+
 void print_par(char par) {
     uint8_t i;
     switch (par) {
@@ -281,7 +314,7 @@ void start_x_shell(void) {
                 return;
             }
         }
-        if (eusart1RxCount != 0) {
+        if (EUSART1_is_rx_ready()) {
             c = EUSART1_Read();
             EUSART1_Write(c);
             if (c == 0x08) {

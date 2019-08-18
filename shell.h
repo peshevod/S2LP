@@ -15,13 +15,21 @@ extern "C" {
 #define BUF_LEN 256
 
     
-#define send_prompt()   {send_chars(prompt,4);}  
-#define send_error()   {send_chars(err,11);}  
-#define send_exit()   {send_chars(ex,8);}  
+#define send_prompt()   {send_chars((char*)prompt);}  
+#define send_error()   {send_chars((char*)err);}  
+#define send_exit()   {send_chars((char*)ex);}  
     
     
 void start_x_shell(void);
-void send_chars(char* x, uint8_t len);
+void send_chars(char* x);
+uint8_t stringToUInt32(char* str, uint32_t* val);
+uint8_t stringToUInt8(char* str, uint8_t* val);
+uint8_t stringToInt32(char* str, int32_t* val);
+char* i32toa(int32_t i, char* b);
+char* ui32toa(uint32_t i, char* b);
+char* ui8toa(uint8_t i, char* b);
+char* ui8tox(uint8_t i, char* b);
+char* ui32tox(uint8_t i, char* b);
 
 #ifdef	__cplusplus
 }
