@@ -47,15 +47,25 @@
 #include "timers.h"
 #include "shell.h"
 
+#define MODE_TX 0
+#define MODE_RX 1
+
+#define MAX_REC_SIZE 128
+
 /*
                          Main application
  */
 
 uint8_t vectcTxBuff[20]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-volatile SFlagStatus xTxDoneFlag = S_RESET;
+
+uint8_t vectcRxBuff[MAX_REC_SIZE];
+
 S2LPIrqs xIrqStatus;
 volatile uint8_t irqf;
+uint8_t mode,bypass_ldo=0;
 extern volatile S2LPStatus g_xStatus;
+char pb[128];
+
 
 void EXTI_Callback_INT(void)
 {
@@ -83,61 +93,171 @@ void main(void)
 
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
-    printf("Begin\r\n");
+    
+    send_chars("Begin\r\n");
     timers_init();
     
     start_x_shell();
-    
-    IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
-    while (1)
+    if(JP3_GetValue())
     {
-        radio_init();
-        irqf=0;
-//ifdef USE_VCOM
-     printf("A data to transmit: [");
-     
-     for(uint8_t i=0 ; i<20 ; i++)
-       printf("%d ", vectcTxBuff[i]);
-     printf("]\n\r");
-//#endif
-     
-     /* fit the TX FIFO */
-     S2LPCmdStrobeFlushTxFifo();
-     S2LPSpiWriteFifo(20, vectcTxBuff);
-     
-     /* send the TX command */
-     S2LPCmdStrobeTx();
-     
-     /* wait for TX done */
-     while(1)
-     {
-         if(irqf)
-         {
-             S2LPGpioIrqGetStatus(&xIrqStatus);
-             printf("IRQ 0x%08lx\r\n",((uint32_t*)(&xIrqStatus))[0]);
-             if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
-             {
-                 printf("Data sent\r\n");
-             }
-             irqf=0;
-             break;
-         }
-         else
-         {
-            S2LPRefreshStatus();
-            printf("Refresh Status 0x%02hhx\r",g_xStatus.MC_STATE);
-            if(g_xStatus.MC_STATE==0x14)
+        bypass_ldo=0;
+        send_chars("NO BYPASS_LDO\r\n");
+    }
+    else
+    {
+        bypass_ldo=1;
+        send_chars("BYPASS_LDO\r\n");
+    }
+    
+    if(JP2_GetValue())
+    {
+        mode=MODE_TX;
+        send_chars("Transmit mode\r\n");
+    }
+    else
+    {
+        mode=MODE_RX;
+        send_chars("Receive mode\r\n");
+    }
+
+    IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
+
+    if(mode!=MODE_RX)
+    {
+        radio_tx_init();
+        while (1)
+        {
+            send_chars("A data to transmit: [");
+            for(uint8_t i=0 ; i<20 ; i++)
             {
-                S2LPEnterShutdown();
-                S2LPExitShutdown();
-                break;
+                send_chars(ui8toa(vectcTxBuff[i],pb));
+                send_chars(" ");
             }
-         }
-     }
- 
-     /* pause between two transmissions */
-     delay_ms(500);
+            send_chars("]\n\r");
      
+             /* fit the TX FIFO */
+             S2LPCmdStrobeFlushTxFifo();
+             S2LPSpiWriteFifo(20, vectcTxBuff);
+
+             /* send the TX command */
+             S2LPCmdStrobeTx();
+
+             /* wait for TX done */
+            while(1)
+            {
+                if(irqf)
+                {
+                    S2LPGpioIrqGetStatus(&xIrqStatus);
+                    if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
+                    {
+                        send_chars("Data sent\r\n");
+                    }
+                    irqf=0;
+                    break;
+                }
+                else
+                {
+                    S2LPRefreshStatus();
+                    send_chars("Refresh Status ");
+                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                    send_chars("\r\n");
+                    if(g_xStatus.MC_STATE!=0x5c)
+                    {
+                        radio_tx_init();
+                        break;
+                    }
+                }
+            }
+             /* pause between two transmissions */
+             delay_ms(500);
+        }
+    }
+    else
+    {
+        radio_rx_init();
+        while (1)
+        {
+            if(!irqf)
+            {
+                S2LPCmdStrobeRx();
+                S2LPRefreshStatus();
+                if(g_xStatus.MC_STATE!=0x30)
+                {
+                    send_chars("After CMD_RX Refresh Status ");
+                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                    send_chars("\r\n");
+                    if(g_xStatus.MC_STATE!=0x0) radio_rx_init();
+                    continue;
+                }
+            }
+            if(irqf)
+            {
+                
+                S2LPGpioIrqGetStatus(&xIrqStatus);
+                send_chars("INT!! irq=");
+                send_chars(ui32tox(*((uint32_t*)(&xIrqStatus)),pb));
+                send_chars("\r\n");
+                if(xIrqStatus.RX_DATA_READY)
+                {
+                    //Get the RX FIFO size 
+                    uint8_t cRxData = S2LPFifoReadNumberBytesRxFifo();
+
+                    //Read the RX FIFO
+                    S2LPSpiReadFifo(cRxData, vectcRxBuff);
+
+//                    S2LPCmdStrobeRx();
+                    //Flush the RX FIFO 
+                    S2LPCmdStrobeFlushRxFifo();      
+
+                    SBool xCorrect=S_TRUE;
+                    for(uint8_t i=0 ; i<cRxData ; i++)
+                        if(vectcRxBuff[i] != i+1)
+                            xCorrect=S_FALSE;
+                    if(xCorrect)
+                    {
+                        send_chars("DATA CORRECT, RSSI=");
+                        send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
+                        send_chars(" dbm\r\n");
+                    }
+                    //print the received data 
+                    send_chars("B data received: [");
+                    for(uint8_t i=0 ; i<cRxData ; i++)
+                    {
+                        send_chars(ui8toa(vectcRxBuff[i],pb));
+                        send_chars(" ");
+                    }
+                    send_chars("]\n\r");
+                }
+                else if(xIrqStatus.RX_DATA_DISC)
+                {
+                    send_chars("DATA DISCARDED\n\r");
+                    //RX command - to ensure the device will be ready for the next reception 
+//                    S2LPCmdStrobeRx();
+                }
+                else
+                {
+                    send_chars("Unknokwn interrupt Refresh Status ");
+                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                    send_chars("\r\n");
+//                    S2LPCmdStrobeRx();
+                }
+                irqf=0;
+            }
+            else
+            {
+                S2LPRefreshStatus();
+                if(g_xStatus.MC_STATE!=0x30)
+                {
+                    send_chars("MC_STATE!=0x30 Refresh Status ");
+                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                    send_chars(" irqf=");
+                    send_chars(ui8toa(irqf,pb));
+                    send_chars("\r\n");
+                    if(!irqf) radio_rx_init();
+//                    S2LPCmdStrobeRx();
+               }
+            }
+        }
     }
 }
 /**
