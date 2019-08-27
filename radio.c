@@ -1,8 +1,10 @@
 #include "S2LP_Config.h"
 #include "radio.h"
+#include "shell.h"
 
 extern uint8_t bypass_ldo;
 extern volatile uint8_t irqf;
+extern char val_buf[BUF_LEN];
 
 SRadioInit xRadioInit = {
    BASE_FREQUENCY,
@@ -32,10 +34,25 @@ SGpioInit xGpioIRQ={
    S2LP_GPIO_DIG_OUT_IRQ
 };
  
+SAfcInit xSAfcInit={
+    S_ENABLE,  /*!< AFC enable */
+    S_ENABLE,  /*!< Freeze the parameters on SYNC word detect */
+    AFC_MODE_LOOP_CLOSED_ON_2ND_CONV_STAGE,/*!< Specify the AFC mode. @ref SAfcMode */
+    0x80,            /*!< Fast period duration */
+    2,            /*!< Gain used during fast loop */
+    5           /*!< Gain used during slow loop */
+};
 
 void radio_init()
 {
-    uint8_t tmp;
+    uint8_t tmp,tmp1;
+    
+    set_s('F',&xRadioInit.lFrequencyBase);
+    set_s('M',&xRadioInit.xModulationSelect);
+    set_s('R',&xRadioInit.lDatarate);
+    set_s('W',&xRadioInit.lBandwidth);
+    set_s('D',&xRadioInit.lFreqDev);
+
     /* S2LP ON */
     S2LPEnterShutdown();
     S2LPExitShutdown();
@@ -47,8 +64,15 @@ void radio_init()
     
     /* S2LP Radio config */
     S2LPRadioInit(&xRadioInit);
+    uint32_t tmp32;
+    set_s('S',&tmp32);
+    S2LPRadioSetChannelSpace(tmp32);
+    set_s('C',&tmp);
+    S2LPRadioSetChannel(tmp);
     
     /* S2LP Packet config */
+    set_s('E',&tmp32);
+    xBasicInit.xPreambleLength=(uint16_t)tmp32;
     S2LPPktBasicInit(&xBasicInit);
    
     /* S2LP IRQs enable */
@@ -60,12 +84,10 @@ void radio_init()
     /* IRQ registers blanking */
     S2LPGpioIrqClearStatus();
     
-    if(bypass_ldo)
-    {
-        S2LPSpiReadRegisters(0x78, 1, &tmp);
-        tmp|=0x04;
-        S2LPSpiWriteRegisters(0x78, 1, &tmp);
-    }
+    S2LPSpiReadRegisters(0x78, 1, &tmp);
+    set_s('L',&tmp1);
+    if(tmp1) tmp&=0xFB;else tmp|=0x04;
+    S2LPSpiWriteRegisters(0x78, 1, &tmp);
    
 
 }
@@ -73,19 +95,25 @@ void radio_init()
 void radio_tx_init()
 {
     uint8_t tmp;
+    int32_t power;
     radio_init();
+    set_s('P',&power);
    
     /* S2LP Radio set power */
-//   S2LPRadioSetMaxPALevel(S_DISABLE);
-    S2LPRadioSetPALeveldBm(0,POWER_DBM);
-    S2LPRadioSetPALevelMaxIndex(0);
-
-    /* Maximum POWER*/
-   
-    S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
-    tmp|=SET_SMPS_LVL_REGMASK;
-    S2LPSpiWriteRegisters(PM_CONF0_ADDR, 1, &tmp);
-    S2LPRadioSetMaxPALevel(S_ENABLE);
+    if(power>14)
+    {
+        /* Maximum POWER*/
+        S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
+        tmp|=SET_SMPS_LVL_REGMASK;
+        S2LPSpiWriteRegisters(PM_CONF0_ADDR, 1, &tmp);
+        S2LPRadioSetMaxPALevel(S_ENABLE);
+    }
+    else
+    {
+        S2LPRadioSetMaxPALevel(S_DISABLE);
+        S2LPRadioSetPALeveldBm(7,power);
+        S2LPRadioSetPALevelMaxIndex(7);
+    }
    
     /* S2LP IRQs enable */
     S2LPGpioIrqConfig(IRQ_TX_DATA_SENT , S_ENABLE);
@@ -98,7 +126,15 @@ void radio_tx_init()
 
 void radio_rx_init()
 {
+    uint8_t tmp;
     radio_init();
+    
+    S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
+    tmp&=~SET_SMPS_LVL_REGMASK;
+    tmp|=0x30;  //1.4v
+    S2LPSpiWriteRegisters(PM_CONF0_ADDR, 1, &tmp);
+    
+    S2LPRadioAfcInit(&xSAfcInit);
     
     /* RX timeout config */
 //    S2LPTimerSetRxTimerUs(700000);

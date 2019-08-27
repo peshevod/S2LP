@@ -26,7 +26,6 @@
 #include "S2LP_Radio.h"
 #include "S2LP_Config.h"
 #include "MCU_Interface.h"
-//#include "s2-lp.h"
 
 
 /** @addtogroup S2LP_Libraries

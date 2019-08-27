@@ -62,7 +62,7 @@ uint8_t vectcRxBuff[MAX_REC_SIZE];
 
 S2LPIrqs xIrqStatus;
 volatile uint8_t irqf;
-uint8_t mode,bypass_ldo=0;
+uint8_t mode;
 extern volatile S2LPStatus g_xStatus;
 char pb[128];
 
@@ -70,7 +70,7 @@ char pb[128];
 void EXTI_Callback_INT(void)
 {
     irqf++;
- }
+}
 
 
 
@@ -98,18 +98,10 @@ void main(void)
     timers_init();
     
     start_x_shell();
-    if(JP3_GetValue())
-    {
-        bypass_ldo=0;
-        send_chars("NO BYPASS_LDO\r\n");
-    }
-    else
-    {
-        bypass_ldo=1;
-        send_chars("BYPASS_LDO\r\n");
-    }
     
-    if(JP2_GetValue())
+    uint8_t tmp;
+    set_s('T',&tmp);
+    if(tmp)
     {
         mode=MODE_TX;
         send_chars("Transmit mode\r\n");
@@ -169,7 +161,7 @@ void main(void)
                 }
             }
              /* pause between two transmissions */
-             delay_ms(500);
+             delay_ms(1000);
         }
     }
     else

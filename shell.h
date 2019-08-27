@@ -17,7 +17,23 @@ extern "C" {
     
 #define send_prompt()   {send_chars((char*)prompt);}  
 #define send_error()   {send_chars((char*)err);}  
-#define send_exit()   {send_chars((char*)ex);}  
+#define send_exit()   {send_chars((char*)ex);} 
+    
+typedef struct par
+{
+    uint8_t type;
+    char c;
+    union
+    {
+        uint32_t ui32par;
+        int32_t i32par;
+        uint8_t ui8par;
+    } u;
+} _par;
+
+#define PAR_UI32    1
+#define PAR_I32     2
+#define PAR_UI8     3
     
     
 void start_x_shell(void);
@@ -30,6 +46,11 @@ char* ui32toa(uint32_t i, char* b);
 char* ui8toa(uint8_t i, char* b);
 char* ui8tox(uint8_t i, char* b);
 char* ui32tox(uint8_t i, char* b);
+void _print_par(_par* par);
+void print_par(char p);
+void print_pars();
+uint8_t set_s(char p,void* s);
+
 
 #ifdef	__cplusplus
 }
