@@ -116,6 +116,11 @@ void main(void)
 
     if(mode!=MODE_RX)
     {
+        uint16_t d=3000;
+        uint32_t tmp32;
+        set_s('I',&tmp32);
+        d=(uint16_t)(tmp32*1000);
+
         radio_tx_init();
         vectcTxBuff[0]=0;
         vectcTxBuff[1]=0;
@@ -169,7 +174,7 @@ void main(void)
                 }
             }
              /* pause between two transmissions */
-             delay_ms(2000);
+             delay_ms(d);
         }
     }
     else
@@ -183,9 +188,9 @@ void main(void)
                 S2LPRefreshStatus();
                 if(g_xStatus.MC_STATE!=0x30)
                 {
-                    send_chars("After CMD_RX Refresh Status ");
+/*                    send_chars("After CMD_RX Refresh Status ");
                     send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-                    send_chars("\r\n");
+                    send_chars("\r\n");*/
                     if(g_xStatus.MC_STATE!=0x0) radio_rx_init();
                     continue;
                 }
