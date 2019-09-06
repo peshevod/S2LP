@@ -117,6 +117,9 @@ void main(void)
     if(mode!=MODE_RX)
     {
         radio_tx_init();
+        vectcTxBuff[0]=0;
+        vectcTxBuff[1]=0;
+        vectcTxBuff[2]=0xFF;
         while (1)
         {
             send_chars("A data to transmit: [");
@@ -143,6 +146,9 @@ void main(void)
                     if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
                     {
                         send_chars("Data sent\r\n");
+                        vectcTxBuff[0]++;
+                        if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
+                        vectcTxBuff[2]=0xFF;
                     }
                     irqf=0;
                     break;
@@ -155,13 +161,15 @@ void main(void)
                     send_chars("\r\n");
                     if(g_xStatus.MC_STATE!=0x5c)
                     {
+                        if(irqf) continue;
                         radio_tx_init();
+                        vectcTxBuff[2]=g_xStatus.MC_STATE;
                         break;
                     }
                 }
             }
              /* pause between two transmissions */
-             delay_ms(1000);
+             delay_ms(2000);
         }
     }
     else
@@ -186,9 +194,9 @@ void main(void)
             {
                 
                 S2LPGpioIrqGetStatus(&xIrqStatus);
-                send_chars("INT!! irq=");
+/*                send_chars("INT!! irq=");
                 send_chars(ui32tox(*((uint32_t*)(&xIrqStatus)),pb));
-                send_chars("\r\n");
+                send_chars("\r\n");*/
                 if(xIrqStatus.RX_DATA_READY)
                 {
                     //Get the RX FIFO size 
@@ -200,25 +208,21 @@ void main(void)
 //                    S2LPCmdStrobeRx();
                     //Flush the RX FIFO 
                     S2LPCmdStrobeFlushRxFifo();      
-
-                    SBool xCorrect=S_TRUE;
-                    for(uint8_t i=0 ; i<cRxData ; i++)
-                        if(vectcRxBuff[i] != i+1)
-                            xCorrect=S_FALSE;
-                    if(xCorrect)
-                    {
-                        send_chars("DATA CORRECT, RSSI=");
-                        send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
-                        send_chars(" dbm\r\n");
-                    }
+                    send_chars("DATA Received, ");
+                    send_chars(ui8toa(vectcRxBuff[0],pb));
+                    send_chars(" ");
+                    send_chars(ui8toa(vectcRxBuff[1],pb));
+                    send_chars(" RSSI=");
+                    send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
+                    send_chars(" dbm\r\n");
                     //print the received data 
-                    send_chars("B data received: [");
+/*                    send_chars("B data received: [");
                     for(uint8_t i=0 ; i<cRxData ; i++)
                     {
                         send_chars(ui8toa(vectcRxBuff[i],pb));
                         send_chars(" ");
                     }
-                    send_chars("]\n\r");
+                    send_chars("]\n\r");*/
                 }
                 else if(xIrqStatus.RX_DATA_DISC)
                 {
@@ -240,11 +244,11 @@ void main(void)
                 S2LPRefreshStatus();
                 if(g_xStatus.MC_STATE!=0x30)
                 {
-                    send_chars("MC_STATE!=0x30 Refresh Status ");
+/*                    send_chars("MC_STATE!=0x30 Refresh Status ");
                     send_chars(ui8tox(g_xStatus.MC_STATE,pb));
                     send_chars(" irqf=");
                     send_chars(ui8toa(irqf,pb));
-                    send_chars("\r\n");
+                    send_chars("\r\n");*/
                     if(!irqf) radio_rx_init();
 //                    S2LPCmdStrobeRx();
                }

@@ -16,7 +16,7 @@ __eeprom _par _pars[]={
     {PAR_UI8,'T',{ 1 }}, // transmit/rec
     {PAR_UI8,'L',{ 1 }}, // use LDO/bypass LDO
     {PAR_I32,'C',{ 41 }}, // channel
-    {PAR_UI32,'E',{ 64 }}, // channel
+    {PAR_UI32,'E',{ 64 }}, // preamble length
     {0,'X',{0}}
 }; 
 
