@@ -57,7 +57,9 @@
 #include "tmr3.h"
 #include "tmr1.h"
 #include "tmr0.h"
+#include "nco1.h"
 #include "eusart1.h"
+#include "clkref.h"
 
 
 

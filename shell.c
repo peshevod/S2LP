@@ -9,15 +9,17 @@ __eeprom _par _pars[]={
     {PAR_UI32,'F',{ 433000000UL } },  // base frequency
     {PAR_UI8,'M',{ 0xA0 } }, // modulation MOD_2FSK
     {PAR_UI32,'R',{ 600UL }}, // datarate
-    {PAR_UI32,'W',{ 20000UL }}, // bandwidth
-    {PAR_UI32,'D',{ 5000UL }}, // freq_deviation
+    {PAR_UI32,'W',{ 75000UL }}, // bandwidth
+    {PAR_UI32,'D',{ 2000UL }}, // freq_deviation
     {PAR_UI32,'S',{ 25000UL }}, // channel space
     {PAR_I32,'P',{ 16L }}, // power
     {PAR_UI8,'T',{ 1 }}, // transmit/rec
     {PAR_UI8,'L',{ 1 }}, // use LDO/bypass LDO
     {PAR_I32,'C',{ 41 }}, // channel
     {PAR_UI32,'E',{ 64 }}, // preamble length
-    {PAR_UI32,'I',{ 4 }}, // interval in seconds
+    {PAR_UI32,'N',{ 0x00000001 }}, // id
+    {PAR_UI32,'I',{ 30 }}, // interval in seconds
+    {PAR_UI8,'X',{ 3 }}, // repeater
     {0,'X',{0}}
 }; 
 
@@ -244,7 +246,7 @@ char* ui8tox(uint8_t i, char* b)
     return b;
 }
 
-char* ui32tox(uint8_t i, char* b)
+char* ui32tox(uint32_t i, char* b)
 {
     uint8_t* ch;
     ch=((uint8_t*)(&i));

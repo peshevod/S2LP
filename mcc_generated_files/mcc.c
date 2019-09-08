@@ -54,10 +54,12 @@ void SYSTEM_Initialize(void)
     OSCILLATOR_Initialize();
     SPI1_Initialize();
     TMR3_Initialize();
+    NCO1_Initialize();
     TMR5_Initialize();
     TMR1_Initialize();
     TMR0_Initialize();
     EUSART1_Initialize();
+    CLKREF_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)

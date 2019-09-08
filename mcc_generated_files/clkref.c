@@ -1,26 +1,24 @@
 /**
-  Generated Interrupt Manager Source File
+  CLKREF Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    interrupt_manager.c
+  @File Name
+    clkref.c
 
-  @Summary:
-    This is the Interrupt Manager file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated driver implementation file for the CLKREF driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for global interrupt handling.
-    For individual peripheral handlers please see the peripheral driver for
-    all modules selected in the GUI.
+  @Description
+    This source file provides APIs for CLKREF.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
         Device            :  PIC16LF18446
-        Driver Version    :  2.03
+        Driver Version    :  2.01
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00 or later
-        MPLAB 	          :  MPLAB X 5.10
+        Compiler          :  XC8 2.00
+        MPLAB             :  MPLAB X 5.10
 */
 
 /*
@@ -46,31 +44,23 @@
     SOFTWARE.
 */
 
-#include "interrupt_manager.h"
-#include "mcc.h"
+/**
+  Section: Included Files
+*/
 
-void __interrupt() INTERRUPT_InterruptManager (void)
+#include <xc.h>
+#include "clkref.h"
+
+/**
+  Section: CLKREF APIs
+*/
+
+void CLKREF_Initialize(void)
 {
-    // interrupt handler
-    if(PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1)
-    {
-        PIN_MANAGER_IOC();
-    }
-    else if(INTCONbits.PEIE == 1)
-    {
-        if(PIE7bits.NCO1IE == 1 && PIR7bits.NCO1IF == 1)
-        {
-            NCO1_ISR();
-        } 
-        else
-        {
-            //Unhandled Interrupt
-        }
-    }      
-    else
-    {
-        //Unhandled Interrupt
-    }
+    // CLKRCLK LFINTOSC; 
+    CLKRCLK = 0x02;
+    // CLKRDC 50% Duty Cycle; CLKRDIV BaseClock/128; CLKREN enabled; 
+    CLKRCON = 0x97;
 }
 /**
  End of File

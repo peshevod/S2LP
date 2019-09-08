@@ -52,6 +52,13 @@
 
 #define MAX_REC_SIZE 128
 
+typedef enum 
+{
+    SLEEP = 0,
+    COUNTER = 1,
+    SEND = 2
+} SLEEP_STATE;
+
 /*
                          Main application
  */
@@ -62,9 +69,13 @@ uint8_t vectcRxBuff[MAX_REC_SIZE];
 
 S2LPIrqs xIrqStatus;
 volatile uint8_t irqf;
-uint8_t mode;
+uint8_t mode,alarm;
 extern volatile S2LPStatus g_xStatus;
+extern volatile uint8_t inco1;
 char pb[128];
+uint32_t counter;
+uint32_t rest;
+uint8_t repeater,cur_repeater;
 
 
 void EXTI_Callback_INT(void)
@@ -72,6 +83,193 @@ void EXTI_Callback_INT(void)
     irqf++;
 }
 
+void EXTI_Callback_JP4(void)
+{
+    NOP();
+    alarm=1;
+    vectcTxBuff[9]|=0x01;
+}
+
+void EXTI_Callback_JP5(void)
+{
+    NOP();
+    alarm=1;
+    vectcTxBuff[9]|=0x02;
+}
+
+void pmd_set(SLEEP_STATE ss)
+{
+
+    if(ss==SEND)
+    {
+//        PMD0bits.NVMMD=0;
+//        PMD0bits.SYSCMD=0;
+        PMD0bits.CLKRMD=1;
+        PMD0bits.IOCMD=0;
+        
+        PMD1bits.TMR0MD=0;
+        PMD1bits.TMR1MD=0;
+        PMD1bits.TMR3MD=0;
+        PMD1bits.TMR5MD=0;
+
+        PMD2bits.NCO1MD=1;
+
+        PMD6bits.MSSP1MD=0;
+        PMD6bits.U1MD=0;
+        
+        TMR0_Initialize();
+        TMR1_Initialize();
+        TMR3_Initialize();
+        TMR5_Initialize();
+        SPI1_Initialize();
+        EUSART1_Initialize();
+//        IOCAFbits.IOCAF2 = 0;
+//        IOCANbits.IOCAN2 = 1;
+//        IOCAPbits.IOCAP2 = 0;
+//        PIE0bits.IOCIE = 1; 
+//        PIR0bits.IOCIF = 0;
+    }
+    if(ss==SLEEP)
+    {
+//        PMD0bits.NVMMD=0;
+//        PMD0bits.SYSCMD=0;
+        PMD0bits.CLKRMD=0;
+        PMD0bits.IOCMD=0;
+        
+        PMD1bits.TMR0MD=1;
+        PMD1bits.TMR1MD=1;
+        PMD1bits.TMR3MD=1;
+        PMD1bits.TMR5MD=1;
+
+        PMD2bits.NCO1MD=0;
+
+        PMD6bits.MSSP1MD=1;
+        PMD6bits.U1MD=1;
+        
+        CLKREF_Initialize();
+        NCO1CON = 0x00;
+        // CKS CLKR; PWS 1_clk; 
+        NCO1CLK = 0x06;
+        NCO1INCU = 0x00;
+        NCO1INCH = 0x00;
+        NCO1INCL = 0x01;
+        NCO1ACCU = (rest&0x00FF0000)>>16;
+        NCO1ACCH = (rest&0x0000FF00)>>8;
+        NCO1ACCL = (rest&0x000000FF);
+        NCO1CONbits.EN = 1;
+        PIR7bits.NCO1IF = 0;
+        PIE7bits.NCO1IE = 1;
+    }
+    if(ss==COUNTER)
+    {
+//        PMD0bits.NVMMD=1;
+//        PMD0bits.SYSCMD=1;
+        PMD0bits.CLKRMD=1;
+//        PMD0bits.IOCMD=1;
+        
+        PMD1bits.TMR0MD=1;
+        PMD1bits.TMR1MD=1;
+        PMD1bits.TMR3MD=1;
+        PMD1bits.TMR5MD=1;
+
+        PMD2bits.NCO1MD=1;
+
+        PMD6bits.MSSP1MD=1;
+        PMD6bits.U1MD=1;
+    }
+}
+
+void pmd_off(void)
+{
+    PMD0bits.FVRMD=1;
+
+    PMD1bits.TMR2MD=1;
+    PMD1bits.TMR4MD=1;
+    PMD1bits.TMR6MD=1;
+    
+    PMD3bits.ADCMD=1;
+    PMD3bits.CMP1MD=1;
+    PMD3bits.CMP2MD=1;
+    PMD3bits.DAC1MD=1;
+    PMD3bits.ZCDMD=1;
+    
+    PMD4bits.CCP1MD=1;
+    PMD4bits.CCP2MD=1;
+    PMD4bits.CCP3MD=1;
+    PMD4bits.CCP4MD=1;
+    PMD4bits.PWM6MD=1;
+    PMD4bits.PWM7MD=1;
+    
+    PMD5bits.CWG1MD=1;
+    PMD5bits.CWG2MD=1;
+
+    PMD6bits.MSSP2MD=1;
+    
+    
+    PMD7bits.CLC1MD=1;
+    PMD7bits.CLC2MD=1;
+    PMD7bits.CLC3MD=1;
+    PMD7bits.CLC4MD=1;
+    PMD7bits.DSM1MD=1;
+    PMD7bits.SMT1MD=1;
+}
+
+void init_pic(uint8_t shell)
+{
+    uint8_t tmp;
+    timers_init();
+    if(shell) start_x_shell();
+    set_s('T',&tmp);
+    if(tmp)
+    {
+        mode=MODE_TX;
+        send_chars("Transmit mode\r\n");
+    }
+    else
+    {
+        mode=MODE_RX;
+        send_chars("Receive mode\r\n");
+    }
+}
+
+void to_sleep(void)
+{
+    uint32_t tmp32;
+    uint64_t div;
+    set_s('I',&tmp32);
+    counter=(tmp32*1000)/4329559;
+    div=(tmp32*1000)-(counter*4329559);
+    if(div==0) counter--;
+    rest=1048576-(div*24219)/100000;
+    send_chars("Going to sleep rest=");
+    send_chars(ui32tox(rest,pb));
+    send_chars(" counter=");
+    send_chars(ui32tox(counter,pb));
+    send_chars("\r\n");
+    pmd_set(SLEEP);
+//    pmd_set(SEND);
+//    VREGCONbits.VREGPM=1;
+    while(1)
+    {
+        CPUDOZEbits.IDLEN=0;
+        SLEEP();
+        NOP();
+        if(!alarm)
+        {
+            pmd_set(COUNTER);
+            if(counter-->0)
+            {
+                rest=0;
+                pmd_set(SLEEP);
+                continue;
+            }
+        }
+        pmd_set(SEND);
+        break;
+    }
+    init_pic(0);
+    send_chars("Coming from sleep\r\n");
+}
 
 
 void main(void)
@@ -95,38 +293,37 @@ void main(void)
     //INTERRUPT_PeripheralInterruptDisable();
     
     send_chars("Begin\r\n");
-    timers_init();
-    
-    start_x_shell();
-    
-    uint8_t tmp;
-    set_s('T',&tmp);
-    if(tmp)
-    {
-        mode=MODE_TX;
-        send_chars("Transmit mode\r\n");
-    }
-    else
-    {
-        mode=MODE_RX;
-        send_chars("Receive mode\r\n");
-    }
-
+    alarm=0;
+    pmd_off();
+    pmd_set(SEND);
+    init_pic(1);
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
+    IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
+    IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
 
     if(mode!=MODE_RX)
     {
-        uint16_t d=3000;
-        uint32_t tmp32;
-        set_s('I',&tmp32);
-        d=(uint16_t)(tmp32*1000);
-
         radio_tx_init();
         vectcTxBuff[0]=0;
         vectcTxBuff[1]=0;
         vectcTxBuff[2]=0xFF;
+        set_s('X',&repeater);
+        vectcTxBuff[3]=repeater;
+        set_s('N',&(vectcTxBuff[4]));
+        vectcTxBuff[9]=0;
         while (1)
         {
+            vectcTxBuff[8]=0;
+            if(!JP4_GetValue())
+            {
+                alarm=1;
+                vectcTxBuff[8]|=0x01;
+            }
+            if(!JP5_GetValue())
+            {
+                alarm=1;
+                vectcTxBuff[8]|=0x02;
+            }
             send_chars("A data to transmit: [");
             for(uint8_t i=0 ; i<20 ; i++)
             {
@@ -154,6 +351,16 @@ void main(void)
                         vectcTxBuff[0]++;
                         if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
                         vectcTxBuff[2]=0xFF;
+                        /* sleep between transmissions */
+                        if(--vectcTxBuff[3] || alarm) delay_ms(3000);
+                        else
+                        {
+                            SDN_SetHigh();
+                            to_sleep();
+                            SDN_SetLow();
+                            radio_tx_init();
+                            vectcTxBuff[3]=repeater;
+                        }
                     }
                     irqf=0;
                     break;
@@ -173,8 +380,6 @@ void main(void)
                     }
                 }
             }
-             /* pause between two transmissions */
-             delay_ms(d);
         }
     }
     else

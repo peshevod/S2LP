@@ -1,26 +1,24 @@
 /**
-  Generated Interrupt Manager Source File
+  CLKREF Generated Driver API Header File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    interrupt_manager.c
+  @File Name
+    clkref.h
 
-  @Summary:
-    This is the Interrupt Manager file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated header file for the CLKREF driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for global interrupt handling.
-    For individual peripheral handlers please see the peripheral driver for
-    all modules selected in the GUI.
+  @Description
+    This header file provides APIs for driver for CLKREF.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
         Device            :  PIC16LF18446
-        Driver Version    :  2.03
+        Driver Version    :  2.01
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00 or later
-        MPLAB 	          :  MPLAB X 5.10
+        Compiler          :  XC8 2.00
+        MPLAB             :  MPLAB X 5.10
 */
 
 /*
@@ -46,32 +44,62 @@
     SOFTWARE.
 */
 
-#include "interrupt_manager.h"
-#include "mcc.h"
+#ifndef CLKREF_H
+#define CLKREF_H
 
-void __interrupt() INTERRUPT_InterruptManager (void)
-{
-    // interrupt handler
-    if(PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1)
-    {
-        PIN_MANAGER_IOC();
+/**
+  Section: Included Files
+*/
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#ifdef __cplusplus  // Provide C++ Compatibility
+
+    extern "C" {
+
+#endif
+
+/**
+  Section: CLKREF APIs
+*/
+
+/**
+  @Summary
+    Initializes the CLKREF
+
+  @Description
+    This routine initializes the CLKREF.
+    This routine must be called before any other CLKREF routine is called.
+    This routine should only be called once during system initialization.
+
+  @Preconditions
+    None
+
+  @Param
+    None
+
+  @Returns
+    None
+
+  @Comment
+
+  @Example
+    <code>
+    CLKREF_Initialize();
+    </code>
+*/
+void CLKREF_Initialize(void);
+
+#ifdef __cplusplus  // Provide C++ Compatibility
+
     }
-    else if(INTCONbits.PEIE == 1)
-    {
-        if(PIE7bits.NCO1IE == 1 && PIR7bits.NCO1IF == 1)
-        {
-            NCO1_ISR();
-        } 
-        else
-        {
-            //Unhandled Interrupt
-        }
-    }      
-    else
-    {
-        //Unhandled Interrupt
-    }
-}
+
+#endif
+
+#endif // CLKREF_H
 /**
  End of File
 */
+
+
