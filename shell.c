@@ -8,9 +8,9 @@
 __eeprom _par _pars[]={
     {PAR_UI32,'F',{ 433000000UL } },  // base frequency
     {PAR_UI8,'M',{ 0xA0 } }, // modulation MOD_2FSK
-    {PAR_UI32,'R',{ 600UL }}, // datarate
-    {PAR_UI32,'W',{ 75000UL }}, // bandwidth
-    {PAR_UI32,'D',{ 2000UL }}, // freq_deviation
+    {PAR_UI32,'R',{ 1200UL }}, // datarate
+    {PAR_UI32,'W',{ 125000UL }}, // bandwidth
+    {PAR_UI32,'D',{ 5000UL }}, // freq_deviation
     {PAR_UI32,'S',{ 25000UL }}, // channel space
     {PAR_I32,'P',{ 16L }}, // power
     {PAR_UI8,'T',{ 1 }}, // transmit/rec

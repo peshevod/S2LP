@@ -352,9 +352,6 @@ void main(void)
                     if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
                     {
                         send_chars("Data sent\r\n");
-                        vectcTxBuff[0]++;
-                        if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
-                        vectcTxBuff[2]=0xFF;
                         /* sleep between transmissions */
                         if(--vectcTxBuff[3] || alarm)
                         {
@@ -367,6 +364,9 @@ void main(void)
                             to_sleep();
                             SDN_SetLow();
                             radio_tx_init(packetlen);
+                            vectcTxBuff[0]++;
+                            if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
+                            vectcTxBuff[2]=0xFF;
                             vectcTxBuff[3]=repeater;
                         }
                     }
@@ -427,9 +427,11 @@ void main(void)
                     //Flush the RX FIFO 
                     S2LPCmdStrobeFlushRxFifo();      
                     send_chars("DATA Received, ");
-                    send_chars(ui8toa(vectcRxBuff[0],pb));
+                    send_chars(ui32tox(((uint32_t*)vectcRxBuff)[0],pb));
                     send_chars(" ");
-                    send_chars(ui8toa(vectcRxBuff[1],pb));
+                    send_chars(ui32tox(((uint32_t*)vectcRxBuff)[1],pb));
+                    send_chars(" ");
+                    send_chars(ui32tox(((uint32_t*)vectcRxBuff)[2],pb));
                     send_chars(" RSSI=");
                     send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
                     send_chars(" dbm\r\n");
