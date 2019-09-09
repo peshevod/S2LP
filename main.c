@@ -76,6 +76,8 @@ char pb[128];
 uint32_t counter;
 uint32_t rest;
 uint8_t repeater,cur_repeater;
+uint32_t next;
+uint8_t packetlen;
 
 
 void EXTI_Callback_INT(void)
@@ -300,16 +302,18 @@ void main(void)
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
     IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
     IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
+    packetlen=10;
 
     if(mode!=MODE_RX)
     {
-        radio_tx_init();
+        radio_tx_init(packetlen);
         vectcTxBuff[0]=0;
         vectcTxBuff[1]=0;
         vectcTxBuff[2]=0xFF;
         set_s('X',&repeater);
         vectcTxBuff[3]=repeater;
         set_s('N',&(vectcTxBuff[4]));
+        next=((uint32_t*)vectcTxBuff)[1];
         vectcTxBuff[9]=0;
         while (1)
         {
@@ -325,7 +329,7 @@ void main(void)
                 vectcTxBuff[8]|=0x02;
             }
             send_chars("A data to transmit: [");
-            for(uint8_t i=0 ; i<20 ; i++)
+            for(uint8_t i=0 ; i<packetlen ; i++)
             {
                 send_chars(ui8toa(vectcTxBuff[i],pb));
                 send_chars(" ");
@@ -334,7 +338,7 @@ void main(void)
      
              /* fit the TX FIFO */
              S2LPCmdStrobeFlushTxFifo();
-             S2LPSpiWriteFifo(20, vectcTxBuff);
+             S2LPSpiWriteFifo(packetlen, vectcTxBuff);
 
              /* send the TX command */
              S2LPCmdStrobeTx();
@@ -352,13 +356,17 @@ void main(void)
                         if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
                         vectcTxBuff[2]=0xFF;
                         /* sleep between transmissions */
-                        if(--vectcTxBuff[3] || alarm) delay_ms(3000);
+                        if(--vectcTxBuff[3] || alarm)
+                        {
+                            next=1664525*next+1013904223;
+                            delay_ms((next&0xFFFF0000)>>18);
+                        }
                         else
                         {
                             SDN_SetHigh();
                             to_sleep();
                             SDN_SetLow();
-                            radio_tx_init();
+                            radio_tx_init(packetlen);
                             vectcTxBuff[3]=repeater;
                         }
                     }
@@ -374,7 +382,7 @@ void main(void)
                     if(g_xStatus.MC_STATE!=0x5c)
                     {
                         if(irqf) continue;
-                        radio_tx_init();
+                        radio_tx_init(packetlen);
                         vectcTxBuff[2]=g_xStatus.MC_STATE;
                         break;
                     }
@@ -384,7 +392,7 @@ void main(void)
     }
     else
     {
-        radio_rx_init();
+        radio_rx_init(packetlen);
         while (1)
         {
             if(!irqf)
@@ -396,7 +404,7 @@ void main(void)
 /*                    send_chars("After CMD_RX Refresh Status ");
                     send_chars(ui8tox(g_xStatus.MC_STATE,pb));
                     send_chars("\r\n");*/
-                    if(g_xStatus.MC_STATE!=0x0) radio_rx_init();
+                    if(g_xStatus.MC_STATE!=0x0) radio_rx_init(packetlen);
                     continue;
                 }
             }
@@ -459,7 +467,7 @@ void main(void)
                     send_chars(" irqf=");
                     send_chars(ui8toa(irqf,pb));
                     send_chars("\r\n");*/
-                    if(!irqf) radio_rx_init();
+                    if(!irqf) radio_rx_init(packetlen);
 //                    S2LPCmdStrobeRx();
                }
             }

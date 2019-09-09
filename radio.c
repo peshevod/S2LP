@@ -44,7 +44,7 @@ SAfcInit xSAfcInit={
     5           /*!< Gain used during slow loop */
 };
 
-void radio_init()
+void radio_init(uint8_t packetlen)
 {
     uint8_t tmp,tmp1;
     
@@ -80,7 +80,7 @@ void radio_init()
     S2LPGpioIrqDeInit(NULL);
    
     /* payload length config */
-    S2LPPktBasicSetPayloadLength(20);
+    S2LPPktBasicSetPayloadLength(packetlen);
    
     /* IRQ registers blanking */
     S2LPGpioIrqClearStatus();
@@ -93,11 +93,11 @@ void radio_init()
 
 }
 
-void radio_tx_init()
+void radio_tx_init(uint8_t packetlen)
 {
     uint8_t tmp;
     int32_t power;
-    radio_init();
+    radio_init(packetlen);
     set_s('P',&power);
    
     /* S2LP Radio set power */
@@ -125,10 +125,10 @@ void radio_tx_init()
   
 }
 
-void radio_rx_init()
+void radio_rx_init(uint8_t packetlen)
 {
     uint8_t tmp;
-    radio_init();
+    radio_init(packetlen);
     
     S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
     tmp&=~SET_SMPS_LVL_REGMASK;
