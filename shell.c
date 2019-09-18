@@ -20,7 +20,9 @@ __eeprom _par _pars[]={
     {PAR_UI32,'N',{ 0x00000001 }}, // id
     {PAR_UI32,'I',{ 30 }}, // interval in seconds
     {PAR_UI8,'X',{ 3 }}, // repeater
-    {0,'X',{0}}
+    {PAR_UI8,'Y',{ 1 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
+    {PAR_UI8,'Z',{ 2 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
+    {0,'\x00',{0}}
 }; 
 
 char t[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};

@@ -69,7 +69,7 @@ uint8_t vectcRxBuff[MAX_REC_SIZE];
 
 S2LPIrqs xIrqStatus;
 volatile uint8_t irqf;
-uint8_t mode,alarm;
+uint8_t mode,mode0,mode1,mode2;
 extern volatile S2LPStatus g_xStatus;
 extern volatile uint8_t inco1;
 char pb[128];
@@ -78,6 +78,7 @@ uint32_t rest;
 uint8_t repeater,cur_repeater;
 uint32_t next;
 uint8_t packetlen;
+uint8_t jp4_mode,jp5_mode;
 
 
 void EXTI_Callback_INT(void)
@@ -88,14 +89,14 @@ void EXTI_Callback_INT(void)
 void EXTI_Callback_JP4(void)
 {
     NOP();
-    alarm=1;
+    if(mode0&0x01) return;
     vectcTxBuff[9]|=0x01;
 }
 
 void EXTI_Callback_JP5(void)
 {
     NOP();
-    alarm=1;
+    if(mode0&0x02) return;
     vectcTxBuff[9]|=0x02;
 }
 
@@ -256,7 +257,7 @@ void to_sleep(void)
         CPUDOZEbits.IDLEN=0;
         SLEEP();
         NOP();
-        if(!alarm)
+        if(!vectcTxBuff[9])
         {
             pmd_set(COUNTER);
             if(counter-->0)
@@ -295,13 +296,69 @@ void main(void)
     //INTERRUPT_PeripheralInterruptDisable();
     
     send_chars("Begin\r\n");
-    alarm=0;
+//    alarm4=0;
+//    alarm5=0;
     pmd_off();
     pmd_set(SEND);
     init_pic(1);
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
-    IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
-    IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
+    mode0=0;
+    mode1=0;
+    mode2=0;
+    set_s('Y',&jp4_mode);
+    if(jp4_mode!=0)
+    {
+        mode0&=0xFE;
+        IOCCNbits.IOCCN5=1;
+        if(jp4_mode==1)
+        {
+            IOCCPbits.IOCCP5=1;
+            mode1|=0x01;
+            mode2&=0xFE;
+        }
+        else
+        {
+            IOCCPbits.IOCCP5=0;
+            mode2|=0x01;
+            mode1&=0xFE;
+        }
+        IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
+    }
+    else
+    {
+        IOCCNbits.IOCCN5=0;
+        IOCCPbits.IOCCP5=0;
+        mode0|=0x01;
+        mode1&=0xFE;
+        mode2&=0xFE;
+    }
+    set_s('Z',&jp5_mode);
+    if(jp5_mode!=0)
+    {
+        mode0&=0xFD;
+        IOCCNbits.IOCCN4=1;
+        if(jp5_mode==1)
+        {
+            IOCCPbits.IOCCP4=1;
+            mode1|=0x02;
+            mode2&=0xFD;
+        }
+        else
+        {
+            IOCCPbits.IOCCP4=0;
+            mode2|=0x02;
+            mode1&=0xFD;
+        }
+        IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
+    }
+    else
+    {
+        IOCCNbits.IOCCN4=0;
+        IOCCPbits.IOCCP4=0;
+        mode0|=0x02;
+        mode1&=0xFD;
+        mode2&=0xFD;
+    }
     packetlen=10;
 
     if(mode!=MODE_RX)
@@ -320,13 +377,13 @@ void main(void)
             vectcTxBuff[8]=0;
             if(!JP4_GetValue())
             {
-                alarm=1;
                 vectcTxBuff[8]|=0x01;
+                vectcTxBuff[9]|=0x01;
             }
             if(!JP5_GetValue())
             {
-                alarm=1;
                 vectcTxBuff[8]|=0x02;
+                vectcTxBuff[9]|=0x02;
             }
             send_chars("A data to transmit: [");
             for(uint8_t i=0 ; i<packetlen ; i++)
@@ -353,7 +410,7 @@ void main(void)
                     {
                         send_chars("Data sent\r\n");
                         /* sleep between transmissions */
-                        if(--vectcTxBuff[3] || alarm)
+                        if(--vectcTxBuff[3] || (vectcTxBuff[9]&mode2) )
                         {
                             next=1664525*next+1013904223;
                             delay_ms((next&0xFFFF0000)>>18);
@@ -361,6 +418,7 @@ void main(void)
                         else
                         {
                             SDN_SetHigh();
+                            vectcTxBuff[9]&=mode2;
                             to_sleep();
                             SDN_SetLow();
                             radio_tx_init(packetlen);
