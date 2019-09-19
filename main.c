@@ -52,6 +52,11 @@
 
 #define MAX_REC_SIZE 128
 
+#define ALARM_JP4   0x01
+#define ALARM_JP5   0x02
+#define CLEAR_JP4   0xFE
+#define CLEAR_JP5   0xFD
+
 typedef enum 
 {
     SLEEP = 0,
@@ -89,14 +94,14 @@ void EXTI_Callback_INT(void)
 void EXTI_Callback_JP4(void)
 {
     NOP();
-    if(mode0&0x01) return;
+    if(!jp4_mode) return;
     vectcTxBuff[9]|=0x01;
 }
 
 void EXTI_Callback_JP5(void)
 {
     NOP();
-    if(mode0&0x02) return;
+    if(!jp5_mode) return;
     vectcTxBuff[9]|=0x02;
 }
 
@@ -308,19 +313,19 @@ void main(void)
     set_s('Y',&jp4_mode);
     if(jp4_mode!=0)
     {
-        mode0&=0xFE;
+        mode0&=CLEAR_JP4;
         IOCCNbits.IOCCN5=1;
         if(jp4_mode==1)
         {
             IOCCPbits.IOCCP5=1;
-            mode1|=0x01;
-            mode2&=0xFE;
+            mode1|=ALARM_JP4;
+            mode2&=CLEAR_JP4;
         }
         else
         {
             IOCCPbits.IOCCP5=0;
-            mode2|=0x01;
-            mode1&=0xFE;
+            mode2|=ALARM_JP4;
+            mode1&=CLEAR_JP4;
         }
         IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
     }
@@ -328,26 +333,26 @@ void main(void)
     {
         IOCCNbits.IOCCN5=0;
         IOCCPbits.IOCCP5=0;
-        mode0|=0x01;
-        mode1&=0xFE;
-        mode2&=0xFE;
+        mode0|=ALARM_JP4;
+        mode1&=CLEAR_JP4;
+        mode2&=CLEAR_JP4;
     }
     set_s('Z',&jp5_mode);
     if(jp5_mode!=0)
     {
-        mode0&=0xFD;
+        mode0&=CLEAR_JP5;
         IOCCNbits.IOCCN4=1;
         if(jp5_mode==1)
         {
             IOCCPbits.IOCCP4=1;
-            mode1|=0x02;
-            mode2&=0xFD;
+            mode1|=ALARM_JP5;
+            mode2&=CLEAR_JP5;
         }
         else
         {
             IOCCPbits.IOCCP4=0;
-            mode2|=0x02;
-            mode1&=0xFD;
+            mode2|=ALARM_JP5;
+            mode1&=CLEAR_JP5;
         }
         IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
     }
@@ -355,11 +360,11 @@ void main(void)
     {
         IOCCNbits.IOCCN4=0;
         IOCCPbits.IOCCP4=0;
-        mode0|=0x02;
-        mode1&=0xFD;
-        mode2&=0xFD;
+        mode0|=ALARM_JP5;
+        mode1&=CLEAR_JP5;
+        mode2&=CLEAR_JP5;
     }
-    packetlen=10;
+    packetlen=12;
 
     if(mode!=MODE_RX)
     {
@@ -372,18 +377,20 @@ void main(void)
         set_s('N',&(vectcTxBuff[4]));
         next=((uint32_t*)vectcTxBuff)[1];
         vectcTxBuff[9]=0;
+        vectcTxBuff[10]=jp4_mode;
+        vectcTxBuff[11]=jp5_mode;
         while (1)
         {
             vectcTxBuff[8]=0;
             if(!JP4_GetValue())
             {
-                vectcTxBuff[8]|=0x01;
-                vectcTxBuff[9]|=0x01;
+                vectcTxBuff[8]|=ALARM_JP4;
+                vectcTxBuff[9]|=ALARM_JP4;
             }
             if(!JP5_GetValue())
             {
-                vectcTxBuff[8]|=0x02;
-                vectcTxBuff[9]|=0x02;
+                vectcTxBuff[8]|=ALARM_JP5;
+                vectcTxBuff[9]|=ALARM_JP5;
             }
             send_chars("A data to transmit: [");
             for(uint8_t i=0 ; i<packetlen ; i++)
