@@ -57,6 +57,8 @@
 #define CLEAR_JP4   0xFE
 #define CLEAR_JP5   0xFD
 
+#define JP_PULLDOWN
+
 typedef enum 
 {
     SLEEP = 0,
@@ -95,14 +97,14 @@ void EXTI_Callback_JP4(void)
 {
     NOP();
     if(!jp4_mode) return;
-    vectcTxBuff[9]|=0x01;
+    vectcTxBuff[9]|=ALARM_JP4;
 }
 
 void EXTI_Callback_JP5(void)
 {
     NOP();
     if(!jp5_mode) return;
-    vectcTxBuff[9]|=0x02;
+    vectcTxBuff[9]|=ALARM_JP5;
 }
 
 void pmd_set(SLEEP_STATE ss)
@@ -314,16 +316,28 @@ void main(void)
     if(jp4_mode!=0)
     {
         mode0&=CLEAR_JP4;
+#ifdef JP_PULLDOWN        
         IOCCNbits.IOCCN5=1;
+#else
+        IOCCPbits.IOCCP5=1;
+#endif
         if(jp4_mode==1)
         {
+#ifdef JP_PULLDOWN        
             IOCCPbits.IOCCP5=1;
+#else
+            IOCCNbits.IOCCN5=1;
+#endif
             mode1|=ALARM_JP4;
             mode2&=CLEAR_JP4;
         }
         else
         {
+#ifdef JP_PULLDOWN        
             IOCCPbits.IOCCP5=0;
+#else
+            IOCCNbits.IOCCN5=0;
+#endif
             mode2|=ALARM_JP4;
             mode1&=CLEAR_JP4;
         }
@@ -341,16 +355,28 @@ void main(void)
     if(jp5_mode!=0)
     {
         mode0&=CLEAR_JP5;
+#ifdef JP_PULLDOWN        
         IOCCNbits.IOCCN4=1;
+#else
+        IOCCPbits.IOCCP4=1;
+#endif
         if(jp5_mode==1)
         {
+#ifdef JP_PULLDOWN        
             IOCCPbits.IOCCP4=1;
+#else
+            IOCCNbits.IOCCN4=1;
+#endif
             mode1|=ALARM_JP5;
             mode2&=CLEAR_JP5;
         }
         else
         {
+#ifdef JP_PULLDOWN        
             IOCCPbits.IOCCP4=0;
+#else
+            IOCCNbits.IOCCN4=0;
+#endif
             mode2|=ALARM_JP5;
             mode1&=CLEAR_JP5;
         }
@@ -382,12 +408,20 @@ void main(void)
         while (1)
         {
             vectcTxBuff[8]=0;
+#ifdef JP_PULLDOWN        
             if(!JP4_GetValue())
+#else
+            if(JP4_GetValue())
+#endif                
             {
                 vectcTxBuff[8]|=ALARM_JP4;
                 vectcTxBuff[9]|=ALARM_JP4;
             }
+#ifdef JP_PULLDOWN        
             if(!JP5_GetValue())
+#else
+            if(JP5_GetValue())
+#endif                
             {
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
