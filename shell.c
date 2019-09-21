@@ -22,6 +22,7 @@ __eeprom _par _pars[]={
     {PAR_UI8,'X',{ 3 }}, // repeater
     {PAR_UI8,'Y',{ 1 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
     {PAR_UI8,'Z',{ 2 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
+    {PAR_UI8,'J',{ 1 }}, // JP pulldown
     {0,'\x00',{0}}
 }; 
 

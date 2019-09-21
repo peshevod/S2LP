@@ -57,8 +57,6 @@
 #define CLEAR_JP4   0xFE
 #define CLEAR_JP5   0xFD
 
-#define JP_PULLDOWN
-
 typedef enum 
 {
     SLEEP = 0,
@@ -85,7 +83,7 @@ uint32_t rest;
 uint8_t repeater,cur_repeater;
 uint32_t next;
 uint8_t packetlen;
-uint8_t jp4_mode,jp5_mode;
+uint8_t jp4_mode,jp5_mode,jp_pullup;
 
 
 void EXTI_Callback_INT(void)
@@ -309,35 +307,25 @@ void main(void)
     pmd_set(SEND);
     init_pic(1);
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
+    set_s('J',&jp_pullup);
     mode0=0;
     mode1=0;
     mode2=0;
+    IOCCPbits.IOCCP5=1;
+    IOCCNbits.IOCCN5=1;
     set_s('Y',&jp4_mode);
     if(jp4_mode!=0)
     {
         mode0&=CLEAR_JP4;
-#ifdef JP_PULLDOWN        
-        IOCCNbits.IOCCN5=1;
-#else
-        IOCCPbits.IOCCP5=1;
-#endif
-        if(jp4_mode==1)
+       if(jp4_mode==1)
         {
-#ifdef JP_PULLDOWN        
-            IOCCPbits.IOCCP5=1;
-#else
-            IOCCNbits.IOCCN5=1;
-#endif
             mode1|=ALARM_JP4;
             mode2&=CLEAR_JP4;
         }
         else
         {
-#ifdef JP_PULLDOWN        
-            IOCCPbits.IOCCP5=0;
-#else
-            IOCCNbits.IOCCN5=0;
-#endif
+            if(jp_pullup) IOCCNbits.IOCCN5=0;
+            else IOCCPbits.IOCCP5=0;
             mode2|=ALARM_JP4;
             mode1&=CLEAR_JP4;
         }
@@ -345,38 +333,27 @@ void main(void)
     }
     else
     {
-        IOCCNbits.IOCCN5=0;
         IOCCPbits.IOCCP5=0;
+        IOCCNbits.IOCCN5=0;
         mode0|=ALARM_JP4;
         mode1&=CLEAR_JP4;
         mode2&=CLEAR_JP4;
     }
     set_s('Z',&jp5_mode);
+    IOCCNbits.IOCCN4=1;
+    IOCCPbits.IOCCP4=1;
     if(jp5_mode!=0)
     {
         mode0&=CLEAR_JP5;
-#ifdef JP_PULLDOWN        
-        IOCCNbits.IOCCN4=1;
-#else
-        IOCCPbits.IOCCP4=1;
-#endif
         if(jp5_mode==1)
         {
-#ifdef JP_PULLDOWN        
-            IOCCPbits.IOCCP4=1;
-#else
-            IOCCNbits.IOCCN4=1;
-#endif
             mode1|=ALARM_JP5;
             mode2&=CLEAR_JP5;
         }
         else
         {
-#ifdef JP_PULLDOWN        
-            IOCCPbits.IOCCP4=0;
-#else
-            IOCCNbits.IOCCN4=0;
-#endif
+            if(jp_pullup) IOCCNbits.IOCCN4=0;
+            else IOCCPbits.IOCCP4=0;
             mode2|=ALARM_JP5;
             mode1&=CLEAR_JP5;
         }
@@ -408,20 +385,12 @@ void main(void)
         while (1)
         {
             vectcTxBuff[8]=0;
-#ifdef JP_PULLDOWN        
-            if(!JP4_GetValue())
-#else
-            if(JP4_GetValue())
-#endif                
-            {
+            if(JP4_GetValue()^jp_pullup)
+           {
                 vectcTxBuff[8]|=ALARM_JP4;
                 vectcTxBuff[9]|=ALARM_JP4;
             }
-#ifdef JP_PULLDOWN        
-            if(!JP5_GetValue())
-#else
-            if(JP5_GetValue())
-#endif                
+            if(JP5_GetValue()^jp_pullup)
             {
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
