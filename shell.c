@@ -9,7 +9,7 @@ __eeprom _par _pars[]={
     {PAR_UI32,'F',{ 433000000UL } },  // base frequency
     {PAR_UI8,'M',{ 0xA0 } }, // modulation MOD_2FSK
     {PAR_UI32,'R',{ 1200UL }}, // datarate
-    {PAR_UI32,'W',{ 125000UL }}, // bandwidth
+    {PAR_UI32,'W',{ 25000UL }}, // bandwidth
     {PAR_UI32,'D',{ 5000UL }}, // freq_deviation
     {PAR_UI32,'S',{ 25000UL }}, // channel space
     {PAR_I32,'P',{ 16L }}, // power
@@ -22,7 +22,7 @@ __eeprom _par _pars[]={
     {PAR_UI8,'X',{ 3 }}, // repeater
     {PAR_UI8,'Y',{ 1 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
     {PAR_UI8,'Z',{ 2 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
-    {PAR_UI8,'J',{ 1 }}, // JP pulldown
+    {PAR_UI8,'J',{ 0 }}, // JP pullup
     {0,'\x00',{0}}
 }; 
 

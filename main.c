@@ -317,7 +317,7 @@ void main(void)
     if(jp4_mode!=0)
     {
         mode0&=CLEAR_JP4;
-       if(jp4_mode==1)
+        if(jp4_mode==1)
         {
             mode1|=ALARM_JP4;
             mode2&=CLEAR_JP4;
@@ -385,12 +385,12 @@ void main(void)
         while (1)
         {
             vectcTxBuff[8]=0;
-            if(JP4_GetValue()^jp_pullup)
-           {
+            if(!(JP4_GetValue()^jp_pullup))
+            {
                 vectcTxBuff[8]|=ALARM_JP4;
                 vectcTxBuff[9]|=ALARM_JP4;
             }
-            if(JP5_GetValue()^jp_pullup)
+            if(!(JP5_GetValue()^jp_pullup))
             {
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
@@ -529,6 +529,7 @@ void main(void)
             }
             else
             {
+                if (EUSART1_is_rx_ready() && EUSART1_Read()=='R') RESET();
                 S2LPRefreshStatus();
                 if(g_xStatus.MC_STATE!=0x30)
                 {
