@@ -35,8 +35,8 @@ SGpioInit xGpioIRQ={
 };
  
 SAfcInit xSAfcInit={
-//    S_ENABLE,  /*!< AFC enable */
-    S_DISABLE,  /*!< AFC disable */
+    S_ENABLE,  /*!< AFC enable */
+//    S_DISABLE,  /*!< AFC disable */
     S_ENABLE,  /*!< Freeze the parameters on SYNC word detect */
     AFC_MODE_LOOP_CLOSED_ON_2ND_CONV_STAGE,/*!< Specify the AFC mode. @ref SAfcMode */
     0x80,            /*!< Fast period duration */
