@@ -30,6 +30,7 @@ char t[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 char c_buf[BUF_LEN], val_buf[BUF_LEN];
 uint8_t c_len;
+uint8_t hex=0;
 char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
@@ -49,13 +50,28 @@ uint8_t stringToUInt32(char* str, uint32_t* val) //it is a function made to conv
 {
     uint8_t i = 0;
     uint32_t sum = 0;
-    while (str[i] != '\0') //string not equals to null
+    if(str[0]=='0' && (str[1]=='x' || str[1]=='X'))
     {
+        i+=2;
+        while(str[i] != 0)
+        {
+           if (str[i] >= 0x30 && str[i] <= 0x39) sum=sum*16+(str[i]-0x30);
+           else if(str[i] >= 0x41 && str[i] <= 0x46) sum=sum*16+(str[i]-0x41+10);
+           else if(str[i] >= 0x61 && str[i] <= 0x66) sum=sum*16+(str[i]-0x41+10);
+           else return 1;
+           i++;
+        }
+    }
+    else
+    {
+        while (str[i] != '\0') //string not equals to null
+        {
 
-        if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
-        else {
-            sum = sum * 10 + (str[i] - 48);
-            i++;
+            if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
+            else {
+                sum = sum * 10 + (str[i] - 48);
+                i++;
+            }
         }
     }
     *val = sum;
@@ -66,22 +82,37 @@ uint8_t stringToUInt8(char* str, uint8_t* val) //it is a function made to conver
 {
     int8_t i = -1;
     uint8_t sum = 0;
-    while (str[++i] != 0);
-    if (i > 3) return 1;
-    if (i == 3) {
-        if (str[0] > 0x32) return 1;
-        if (str[0] == 0x32) {
-            if (str[1] > 0x35) return 1;
-            if (str[0]==0x32 && str[1] == 0x35 && str[2] > 0x35) return 1;
+    if(str[0]=='0' && (str[1]=='x' || str[1]=='X'))
+    {
+        i+=2;
+        while(str[++i] != 0)
+        {
+           if(i>=4) return 1;
+           if (str[i] >= 0x30 && str[i] <= 0x39) sum=sum*16+(str[i]-0x30);
+           else if(str[i] >= 0x41 && str[i] <= 0x46) sum=sum*16+(str[i]-0x41+10);
+           else if(str[i] >= 0x61 && str[i] <= 0x66) sum=sum*16+(str[i]-0x41+10);
+           else return 1;
         }
     }
-    i = 0;
-    while (str[i] != '\0') //string not equals to null
+    else
     {
-        if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
-        else {
-            sum = sum * 10 + (str[i] - 48);
-            i++;
+        while (str[++i] != 0);
+        if (i > 3) return 1;
+        if (i == 3) {
+            if (str[0] > 0x32) return 1;
+            if (str[0] == 0x32) {
+                if (str[1] > 0x35) return 1;
+                if (str[0]==0x32 && str[1] == 0x35 && str[2] > 0x35) return 1;
+            }
+        }
+        i = 0;
+        while (str[i] != '\0') //string not equals to null
+        {
+            if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
+            else {
+                sum = sum * 10 + (str[i] - 48);
+                i++;
+            }
         }
     }
     *val = sum;
@@ -96,13 +127,29 @@ uint8_t stringToInt32(char* str, int32_t* val) //it is a function made to conver
         sign = 1;
         i = 1;
     }
-    while (str[i] != '\0') //string not equals to null
+    if(str[i]=='0' && (str[i+1]=='x' || str[i+1]=='X'))
     {
+        i+=2;
+        while(str[i] != 0)
+        {
+           if((i-sign)>=10) return 1;
+           if (str[i] >= 0x30 && str[i] <= 0x39) sum=sum*16+(str[i]-0x30);
+           else if(str[i] >= 0x41 && str[i] <= 0x46) sum=sum*16+(str[i]-0x41+10);
+           else if(str[i] >= 0x61 && str[i] <= 0x66) sum=sum*16+(str[i]-0x41+10);
+           else return 1;
+           i++;
+        }
+    }
+    else
+    {
+        while (str[i] != '\0') //string not equals to null
+        {
 
-        if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
-        else {
-            sum = sum * 10 + (str[i] - 48);
-            i++;
+            if (str[i] < 48 || str[i] > 57) return 1; // ascii value of numbers are between 48 and 57.
+            else {
+                sum = sum * 10 + (str[i] - 48);
+                i++;
+            }
         }
     }
     if (sign) *val = -sum;
@@ -112,9 +159,21 @@ uint8_t stringToInt32(char* str, int32_t* val) //it is a function made to conver
 
 void _print_par(_par* par)
 {
-    if(par->type==PAR_UI32) ui32toa(par->u.ui32par, val_buf);
-    if(par->type==PAR_I32) i32toa(par->u.i32par, val_buf);
-    if(par->type==PAR_UI8) ui8toa(par->u.ui8par, val_buf);
+    if(par->type==PAR_UI32)
+    {
+        if(hex) ui32tox(par->u.ui32par, val_buf);
+        else ui32toa(par->u.ui32par, val_buf);
+    }
+    if(par->type==PAR_I32)
+    {
+        if(hex) i32tox(par->u.i32par, val_buf);
+        else i32toa(par->u.i32par, val_buf);
+    }
+    if(par->type==PAR_UI8)
+    {
+        if(hex) ui8tox(par->u.ui8par, val_buf);
+        else ui8toa(par->u.ui8par, val_buf);
+    }
     EUSART1_Write(par->c);
     EUSART1_Write('=');
     uint8_t i = 0;
@@ -249,6 +308,12 @@ char* ui8tox(uint8_t i, char* b)
     return b;
 }
 
+char* i32tox(int32_t i, char* b)
+{
+    return ui32tox((uint32_t)i,b);
+}
+
+
 char* ui32tox(uint32_t i, char* b)
 {
     uint8_t* ch;
@@ -270,15 +335,22 @@ char* ui32tox(uint32_t i, char* b)
 
 
 uint8_t proceed() {
-    uint8_t i = 1, par, val, cmd;
+    uint8_t i = 0, par, val, cmd;
     //    printf("proceed %s\r\n",c_buf);
     c_buf[c_len] = 0;
-    cmd = c_buf[0];
-    if (cmd == 'Q' && c_buf[1] == 0) {
+    cmd = c_buf[i++];
+    if(cmd==0) return 1;
+    if(c_buf[1]=='X')
+    {
+        hex=1;
+        i++;
+    }
+    else hex=0;
+    if (cmd == 'Q' && c_buf[i] == 0) {
         send_exit();
         return 0;
     }
-    if (cmd == 'L' && c_buf[1] == 0) {
+    if (cmd == 'L' && c_buf[i] == 0) {
         print_pars();
         return 1;
     }

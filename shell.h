@@ -46,6 +46,7 @@ char* ui32toa(uint32_t i, char* b);
 char* ui8toa(uint8_t i, char* b);
 char* ui8tox(uint8_t i, char* b);
 char* ui32tox(uint32_t i, char* b);
+char* i32tox(int32_t i, char* b);
 void _print_par(_par* par);
 void print_par(char p);
 void print_pars();
