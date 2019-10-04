@@ -8,16 +8,16 @@
 __eeprom _par _pars[]={
     {PAR_UI32,'F',{ 433000000UL } },  // base frequency
     {PAR_UI8,'M',{ 0xA0 } }, // modulation MOD_2FSK
-    {PAR_UI32,'R',{ 1200UL }}, // datarate
-    {PAR_UI32,'W',{ 25000UL }}, // bandwidth
-    {PAR_UI32,'D',{ 5000UL }}, // freq_deviation
-    {PAR_UI32,'S',{ 25000UL }}, // channel space
+    {PAR_UI32,'R',{ 19200UL }}, // datarate
+    {PAR_UI32,'W',{ 50000UL }}, // bandwidth
+    {PAR_UI32,'D',{ 12500UL }}, // freq_deviation
+    {PAR_UI32,'S',{ 50000UL }}, // channel space
     {PAR_I32,'P',{ 16L }}, // power
     {PAR_UI8,'T',{ 1 }}, // transmit/rec
     {PAR_UI8,'L',{ 1 }}, // use LDO/bypass LDO
-    {PAR_I32,'C',{ 41 }}, // channel
+    {PAR_I32,'C',{ 21 }}, // channel
     {PAR_UI32,'E',{ 64 }}, // preamble length
-    {PAR_UI32,'N',{ 0x00000001 }}, // id
+    {PAR_UI32,'N',{ 0x00000301 }}, // id
     {PAR_UI32,'I',{ 30 }}, // interval in seconds
     {PAR_UI8,'X',{ 3 }}, // repeater
     {PAR_UI8,'Y',{ 1 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
@@ -35,6 +35,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
+char ver[]={"=== S2-LP shell v 1.0 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;
@@ -390,6 +391,7 @@ void start_x_shell(void) {
 
     c_len = 0;
     SetTimer3(11000);
+    send_chars(ver);
     send_prompt();
     while (1) {
         if (!start) {
