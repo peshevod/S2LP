@@ -8,7 +8,7 @@
 __eeprom _par _pars[]={
     {PAR_UI32,'F',{ 433000000UL } },  // base frequency
     {PAR_UI8,'M',{ 0xA0 } }, // modulation MOD_2FSK
-    {PAR_UI32,'R',{ 19200UL }}, // datarate
+    {PAR_UI32,'R',{ 12500UL }}, // datarate
     {PAR_UI32,'W',{ 50000UL }}, // bandwidth
     {PAR_UI32,'D',{ 12500UL }}, // freq_deviation
     {PAR_UI32,'S',{ 50000UL }}, // channel space
@@ -20,9 +20,8 @@ __eeprom _par _pars[]={
     {PAR_UI32,'N',{ 0x00000301 }}, // id
     {PAR_UI32,'I',{ 30 }}, // interval in seconds
     {PAR_UI8,'X',{ 3 }}, // repeater
-    {PAR_UI8,'Y',{ 1 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
-    {PAR_UI8,'Z',{ 2 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop
-    {PAR_UI8,'J',{ 0 }}, // JP pullup
+    {PAR_UI8,'Y',{ 0x05 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
+    {PAR_UI8,'Z',{ 0x06 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
     {0,'\x00',{0}}
 }; 
 
@@ -35,7 +34,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
-char ver[]={"=== S2-LP shell v 1.0 ===\r\n"};
+char ver[]={"=== S2-LP shell v 1.0.2 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;

@@ -83,7 +83,7 @@ uint32_t rest;
 uint8_t repeater,cur_repeater;
 uint32_t next;
 uint8_t packetlen;
-uint8_t jp4_mode,jp5_mode,jp_pullup;
+uint8_t jp4_mode,jp5_mode;
 
 
 void EXTI_Callback_INT(void)
@@ -94,14 +94,14 @@ void EXTI_Callback_INT(void)
 void EXTI_Callback_JP4(void)
 {
     NOP();
-    if(!jp4_mode) return;
+    if(!(jp4_mode&0x03)) return;
     vectcTxBuff[9]|=ALARM_JP4;
 }
 
 void EXTI_Callback_JP5(void)
 {
     NOP();
-    if(!jp5_mode) return;
+    if(!(jp5_mode&0x03)) return;
     vectcTxBuff[9]|=ALARM_JP5;
 }
 
@@ -307,25 +307,24 @@ void main(void)
     pmd_set(SEND);
     init_pic(1);
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
-    set_s('J',&jp_pullup);
     mode0=0;
     mode1=0;
     mode2=0;
     IOCCPbits.IOCCP5=1;
     IOCCNbits.IOCCN5=1;
     set_s('Y',&jp4_mode);
-    if(jp4_mode!=0)
+    if((jp4_mode&0x03)!=0)
     {
         mode0&=CLEAR_JP4;
-        if(jp4_mode==1)
+        if((jp4_mode&0x03)==1)
         {
             mode1|=ALARM_JP4;
             mode2&=CLEAR_JP4;
         }
         else
         {
-            if(jp_pullup) IOCCNbits.IOCCN5=0;
-            else IOCCPbits.IOCCP5=0;
+            if(jp4_mode&0x04) IOCCPbits.IOCCP5=0;
+            else IOCCNbits.IOCCN5=0;
             mode2|=ALARM_JP4;
             mode1&=CLEAR_JP4;
         }
@@ -342,18 +341,18 @@ void main(void)
     set_s('Z',&jp5_mode);
     IOCCNbits.IOCCN4=1;
     IOCCPbits.IOCCP4=1;
-    if(jp5_mode!=0)
+    if((jp5_mode&0x03)!=0)
     {
         mode0&=CLEAR_JP5;
-        if(jp5_mode==1)
+        if((jp5_mode&0x03)==1)
         {
             mode1|=ALARM_JP5;
             mode2&=CLEAR_JP5;
         }
         else
         {
-            if(jp_pullup) IOCCNbits.IOCCN4=0;
-            else IOCCPbits.IOCCP4=0;
+            if(jp5_mode&0x04) IOCCPbits.IOCCP4=0;
+            else IOCCNbits.IOCCN4=0;
             mode2|=ALARM_JP5;
             mode1&=CLEAR_JP5;
         }
@@ -385,12 +384,12 @@ void main(void)
         while (1)
         {
             vectcTxBuff[8]=0;
-            if(!(JP4_GetValue()^jp_pullup))
+            if(JP4_GetValue()^((jp4_mode&0x04)>>2))
             {
                 vectcTxBuff[8]|=ALARM_JP4;
                 vectcTxBuff[9]|=ALARM_JP4;
             }
-            if(!(JP5_GetValue()^jp_pullup))
+            if(JP5_GetValue()^((jp5_mode&0x04)>>2))
             {
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
