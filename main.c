@@ -384,12 +384,12 @@ void main(void)
         while (1)
         {
             vectcTxBuff[8]=0;
-            if(JP4_GetValue()^((jp4_mode&0x04)>>2))
+            if((JP4_GetValue()^((jp4_mode&0x04)>>2)) && (jp4_mode&0x03))
             {
                 vectcTxBuff[8]|=ALARM_JP4;
                 vectcTxBuff[9]|=ALARM_JP4;
             }
-            if(JP5_GetValue()^((jp5_mode&0x04)>>2))
+            if((JP5_GetValue()^((jp5_mode&0x04)>>2)) && (jp5_mode&0x03))
             {
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
