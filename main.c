@@ -493,15 +493,15 @@ void main(void)
 //                    S2LPCmdStrobeRx();
                     //Flush the RX FIFO 
                     S2LPCmdStrobeFlushRxFifo();      
-                    send_chars("DATA Received, ");
+                    send_chars("REC:");
                     send_chars(ui32tox(((uint32_t*)vectcRxBuff)[0],pb));
                     send_chars(" ");
                     send_chars(ui32tox(((uint32_t*)vectcRxBuff)[1],pb));
                     send_chars(" ");
                     send_chars(ui32tox(((uint32_t*)vectcRxBuff)[2],pb));
-                    send_chars(" RSSI=");
+                    send_chars(" ");
                     send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
-                    send_chars(" dbm\r\n");
+                    send_chars("\r\n");
                     //print the received data 
 /*                    send_chars("B data received: [");
                     for(uint8_t i=0 ; i<cRxData ; i++)
@@ -513,13 +513,13 @@ void main(void)
                 }
                 else if(xIrqStatus.RX_DATA_DISC)
                 {
-                    send_chars("DATA DISCARDED\n\r");
+                    send_chars("DIS\r\n");
                     //RX command - to ensure the device will be ready for the next reception 
 //                    S2LPCmdStrobeRx();
                 }
                 else
                 {
-                    send_chars("Unknokwn interrupt Refresh Status ");
+                    send_chars("MES: Unknokwn interrupt Refresh Status ");
                     send_chars(ui8tox(g_xStatus.MC_STATE,pb));
                     send_chars("\r\n");
 //                    S2LPCmdStrobeRx();
