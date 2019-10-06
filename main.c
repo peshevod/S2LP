@@ -80,8 +80,8 @@ extern volatile uint8_t inco1;
 char pb[128];
 uint32_t counter;
 uint32_t rest;
-uint8_t repeater,cur_repeater;
-uint32_t next;
+uint8_t repeater,cur_repeater,xt;
+uint32_t next, xc;
 uint8_t packetlen;
 uint8_t jp4_mode,jp5_mode;
 
@@ -460,6 +460,9 @@ void main(void)
     else
     {
         radio_rx_init(packetlen);
+        SetTimer3(1000);
+        xt=60;
+        xc=0;
         while (1)
         {
             if(!irqf)
@@ -530,13 +533,24 @@ void main(void)
             {
                 if (EUSART1_is_rx_ready() && EUSART1_Read()=='R') RESET();
                 S2LPRefreshStatus();
+                if(TestTimer3())
+                {
+                    if(--xt==0)
+                    {
+                        xt=60;
+                        send_chars("MES: I am alive ");
+                        send_chars(ui32tox(xc++,pb));
+                        send_chars("\r\n");
+                    }
+                    SetTimer3(1000);
+                }
                 if(g_xStatus.MC_STATE!=0x30)
                 {
-/*                    send_chars("MC_STATE!=0x30 Refresh Status ");
+                    send_chars("MES: MC_STATE!=0x30 ");
                     send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-                    send_chars(" irqf=");
-                    send_chars(ui8toa(irqf,pb));
-                    send_chars("\r\n");*/
+//                    send_chars(" irqf=");
+//                    send_chars(ui8toa(irqf,pb));
+                    send_chars("\r\n");
                     if(!irqf) radio_rx_init(packetlen);
 //                    S2LPCmdStrobeRx();
                }
