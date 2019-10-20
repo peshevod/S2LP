@@ -22,6 +22,7 @@ __eeprom _par _pars[]={
     {PAR_UI8,'X',{ 3 }}, // repeater
     {PAR_UI8,'Y',{ 0x05 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
     {PAR_UI8,'Z',{ 0x06 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
+    {PAR_UI8,'G',{ 0x060 }}, // CRC mode - 0x00 -NO CRC, 0x20 - 8 bit, 0x40 - 16 bit 0x8005, 0x60 - 16 bit 0x1021
     {0,'\x00',{0}}
 }; 
 
@@ -34,7 +35,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
-char ver[]={"=== S2-LP shell v 1.0.5 ===\r\n"};
+char ver[]={"=== S2-LP shell v 1.1.0 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;

@@ -48,8 +48,9 @@ extern "C" {
 #define EN_WHITENING                S_ENABLE
  
  
-/* Wake Up timer in ms for LDC mode */
-#define WAKEUP_TIMER                100/*.0*/
+/* Wake Up timer in us for LDC mode */
+#define WAKEUP_TIMER                7000/*.0*/
+#define FAST_RX_TIMER               500
  
     
 #define PREAMBLE_BYTE(v)        (4*v)

@@ -74,6 +74,8 @@ void radio_init(uint8_t packetlen)
     /* S2LP Packet config */
     set_s('E',&tmp32);
     xBasicInit.xPreambleLength=(uint16_t)tmp32;
+    set_s('G',&tmp);
+    xBasicInit.xCrcMode=tmp;
     S2LPPktBasicInit(&xBasicInit);
    
     /* S2LP IRQs enable */
@@ -128,6 +130,9 @@ void radio_tx_init(uint8_t packetlen)
 void radio_rx_init(uint8_t packetlen)
 {
     uint8_t tmp;
+//    OSCFRQ=0x06;
+//    SP1BRGL=0x40;
+//    SP1BRGH=0x03;
     radio_init(packetlen);
     
     S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
@@ -135,14 +140,31 @@ void radio_rx_init(uint8_t packetlen)
     tmp|=0x30;  //1.4v
     S2LPSpiWriteRegisters(PM_CONF0_ADDR, 1, &tmp);
     
+    SRssiInit xSRssiInit = {
+      .cRssiFlt = 14,
+      .xRssiMode = RSSI_STATIC_MODE,
+      .cRssiThreshdBm = -85,
+    };
+   
+    S2LPRadioRssiInit(&xSRssiInit);
     S2LPRadioAfcInit(&xSAfcInit);
     
     /* RX timeout config */
-//    S2LPTimerSetRxTimerUs(700000);
-    SET_INFINITE_RX_TIMEOUT();
-    
-    S2LPGpioIrqConfig(IRQ_RX_DATA_DISC,S_ENABLE);
+//    S2LPTimerSetRxTimerUs(7000000);
+//    SET_INFINITE_RX_TIMEOUT();
+    /* use SLEEP_A mode (default) */
+    S2LPTimerSleepB(S_DISABLE);
+    S2LPTimerSetRxTimerUs(30000);
+    S2LpSetTimerFastRxTermTimerUs(FAST_RX_TIMER);
+    S2LPTimerSetWakeUpTimerUs(WAKEUP_TIMER);
+    S2LpTimerFastRxTermTimer(S_ENABLE);    
+    S2LPTimerLdcrMode(S_ENABLE);
+
+
+//    S2LPGpioIrqConfig(IRQ_RX_DATA_DISC,S_ENABLE);
     S2LPGpioIrqConfig(IRQ_RX_DATA_READY,S_ENABLE);
+//    S2LPGpioIrqConfig(IRQ_WKUP_TOUT_LDC,S_ENABLE);
+//    S2LPGpioIrqConfig(IRQ_VALID_PREAMBLE,S_ENABLE);
 
     /* IRQ registers blanking */
     S2LPGpioIrqClearStatus();

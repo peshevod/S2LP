@@ -49,6 +49,9 @@
 #include "interrupt_manager.h"
 #include "mcc.h"
 
+void EXTI_Callback_UART1(void);
+
+
 void __interrupt() INTERRUPT_InterruptManager (void)
 {
     // interrupt handler
@@ -61,6 +64,11 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         if(PIE7bits.NCO1IE == 1 && PIR7bits.NCO1IF == 1)
         {
             NCO1_ISR();
+        } 
+        else if(PIE3bits.RC1IE == 1 && PIR3bits.RC1IF == 1)
+        {
+            EXTI_Callback_UART1();
+            PIR3bits.RC1IF = 0;
         } 
         else
         {

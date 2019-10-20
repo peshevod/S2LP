@@ -61,7 +61,9 @@ typedef enum
 {
     SLEEP = 0,
     COUNTER = 1,
-    SEND = 2
+    SEND = 2,
+    SLEEP_REC = 3,
+    REC = 4
 } SLEEP_STATE;
 
 /*
@@ -73,7 +75,7 @@ uint8_t vectcTxBuff[20]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
 uint8_t vectcRxBuff[MAX_REC_SIZE];
 
 S2LPIrqs xIrqStatus;
-volatile uint8_t irqf;
+volatile uint8_t irqf,irqu;
 uint8_t mode,mode0,mode1,mode2;
 extern volatile S2LPStatus g_xStatus;
 extern volatile uint8_t inco1;
@@ -84,11 +86,19 @@ uint8_t repeater,cur_repeater,xt;
 uint32_t next, xc;
 uint8_t packetlen;
 uint8_t jp4_mode,jp5_mode;
+uint32_t t_counter;
 
 
 void EXTI_Callback_INT(void)
 {
+    NOP();
     irqf++;
+}
+
+void EXTI_Callback_UART1(void)
+{
+    NOP();
+    if(RC1REG=='R') RESET();
 }
 
 void EXTI_Callback_JP4(void)
@@ -108,7 +118,7 @@ void EXTI_Callback_JP5(void)
 void pmd_set(SLEEP_STATE ss)
 {
 
-    if(ss==SEND)
+    if(ss==SEND || ss==REC)
     {
 //        PMD0bits.NVMMD=0;
 //        PMD0bits.SYSCMD=0;
@@ -124,20 +134,21 @@ void pmd_set(SLEEP_STATE ss)
 
         PMD6bits.MSSP1MD=0;
         PMD6bits.U1MD=0;
+
         
         TMR0_Initialize();
         TMR1_Initialize();
         TMR3_Initialize();
         TMR5_Initialize();
         SPI1_Initialize();
-        EUSART1_Initialize();
+        if(ss==SEND) EUSART1_Initialize();
 //        IOCAFbits.IOCAF2 = 0;
 //        IOCANbits.IOCAN2 = 1;
 //        IOCAPbits.IOCAP2 = 0;
 //        PIE0bits.IOCIE = 1; 
 //        PIR0bits.IOCIF = 0;
     }
-    if(ss==SLEEP)
+    else if(ss==SLEEP || ss==SLEEP_REC)
     {
 //        PMD0bits.NVMMD=0;
 //        PMD0bits.SYSCMD=0;
@@ -152,7 +163,8 @@ void pmd_set(SLEEP_STATE ss)
         PMD2bits.NCO1MD=0;
 
         PMD6bits.MSSP1MD=1;
-        PMD6bits.U1MD=1;
+        if(ss==SLEEP) PMD6bits.U1MD=1;
+        else PMD6bits.U1MD=0;
         
         CLKREF_Initialize();
         NCO1CON = 0x00;
@@ -167,8 +179,15 @@ void pmd_set(SLEEP_STATE ss)
         NCO1CONbits.EN = 1;
         PIR7bits.NCO1IF = 0;
         PIE7bits.NCO1IE = 1;
+        if(ss==SLEEP_REC)
+        {
+            EUSART1_Initialize();
+            PIR3bits.RC1IF=0;
+            PIE3bits.RC1IE=1;
+            BAUD1CONbits.WUE=1;
+        }
     }
-    if(ss==COUNTER)
+    else if(ss==COUNTER)
     {
 //        PMD0bits.NVMMD=1;
 //        PMD0bits.SYSCMD=1;
@@ -230,17 +249,19 @@ void init_pic(uint8_t shell)
     set_s('T',&tmp);
     if(tmp)
     {
+        pmd_set(SEND);
         mode=MODE_TX;
         send_chars("Transmit mode\r\n");
     }
     else
     {
+        pmd_set(REC);
         mode=MODE_RX;
         send_chars("Receive mode\r\n");
     }
 }
 
-void to_sleep(void)
+void to_sleep(SLEEP_STATE ss)
 {
     uint32_t tmp32;
     uint64_t div;
@@ -249,34 +270,28 @@ void to_sleep(void)
     div=(tmp32*1000)-(counter*4329559);
     if(div==0) counter--;
     rest=1048576-(div*24219)/100000;
-    send_chars("Going to sleep rest=");
-    send_chars(ui32tox(rest,pb));
-    send_chars(" counter=");
-    send_chars(ui32tox(counter,pb));
-    send_chars("\r\n");
-    pmd_set(SLEEP);
-//    pmd_set(SEND);
-//    VREGCONbits.VREGPM=1;
+    send_chars("--->");
+    send_chars("\r\n");    
+    pmd_set(ss);
     while(1)
     {
         CPUDOZEbits.IDLEN=0;
         SLEEP();
         NOP();
-        if(!vectcTxBuff[9])
+        if(!vectcTxBuff[9] && !irqf)
         {
             pmd_set(COUNTER);
             if(counter-->0)
             {
                 rest=0;
-                pmd_set(SLEEP);
+                pmd_set(ss);
                 continue;
             }
         }
-        pmd_set(SEND);
         break;
     }
     init_pic(0);
-    send_chars("Coming from sleep\r\n");
+    send_chars("<---\r\n");
 }
 
 
@@ -304,7 +319,6 @@ void main(void)
 //    alarm4=0;
 //    alarm5=0;
     pmd_off();
-    pmd_set(SEND);
     init_pic(1);
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
     mode0=0;
@@ -428,7 +442,7 @@ void main(void)
                         {
                             SDN_SetHigh();
                             vectcTxBuff[9]&=mode2;
-                            to_sleep();
+                            to_sleep(SLEEP);
                             SDN_SetLow();
                             radio_tx_init(packetlen);
                             vectcTxBuff[0]++;
@@ -460,31 +474,18 @@ void main(void)
     else
     {
         radio_rx_init(packetlen);
-        SetTimer3(1000);
-        xt=60;
-        xc=0;
+        PIR3bits.RC1IF=0;
+        PIE3bits.RC1IE=1;
+        S2LPCmdStrobeRx();
+        irqf=0;
         while (1)
         {
-            if(!irqf)
-            {
-                S2LPCmdStrobeRx();
-                S2LPRefreshStatus();
-                if(g_xStatus.MC_STATE!=0x30)
-                {
-/*                    send_chars("After CMD_RX Refresh Status ");
-                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-                    send_chars("\r\n");*/
-                    if(g_xStatus.MC_STATE!=0x0) radio_rx_init(packetlen);
-                    continue;
-                }
-            }
+            to_sleep(SLEEP_REC);
             if(irqf)
             {
                 
+                S2LPTimerLdcIrqWa(S_ENABLE);
                 S2LPGpioIrqGetStatus(&xIrqStatus);
-/*                send_chars("INT!! irq=");
-                send_chars(ui32tox(*((uint32_t*)(&xIrqStatus)),pb));
-                send_chars("\r\n");*/
                 if(xIrqStatus.RX_DATA_READY)
                 {
                     //Get the RX FIFO size 
@@ -493,7 +494,6 @@ void main(void)
                     //Read the RX FIFO
                     S2LPSpiReadFifo(cRxData, vectcRxBuff);
 
-//                    S2LPCmdStrobeRx();
                     //Flush the RX FIFO 
                     S2LPCmdStrobeFlushRxFifo();      
                     send_chars("REC:");
@@ -504,56 +504,22 @@ void main(void)
                     send_chars(ui32tox(((uint32_t*)vectcRxBuff)[2],pb));
                     send_chars(" ");
                     send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
+                    send_chars(" irq=");
+                    send_chars(ui32tox(*((uint32_t*)(&xIrqStatus)),pb));
                     send_chars("\r\n");
-                    //print the received data 
-/*                    send_chars("B data received: [");
-                    for(uint8_t i=0 ; i<cRxData ; i++)
-                    {
-                        send_chars(ui8toa(vectcRxBuff[i],pb));
-                        send_chars(" ");
-                    }
-                    send_chars("]\n\r");*/
                 }
-                else if(xIrqStatus.RX_DATA_DISC)
-                {
-                    send_chars("DIS\r\n");
-                    //RX command - to ensure the device will be ready for the next reception 
-//                    S2LPCmdStrobeRx();
-                }
-                else
-                {
-                    send_chars("MES: Unknokwn interrupt Refresh Status ");
-                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-                    send_chars("\r\n");
-//                    S2LPCmdStrobeRx();
-                }
+                S2LPCmdStrobeSleep();
+                S2LPTimerLdcIrqWa(S_DISABLE);
                 irqf=0;
             }
             else
             {
-                if (EUSART1_is_rx_ready() && EUSART1_Read()=='R') RESET();
+                send_chars("MES: I am alive ");
+                send_chars(ui32tox(xc++,pb));
+                send_chars(" ");
                 S2LPRefreshStatus();
-                if(TestTimer3())
-                {
-                    if(--xt==0)
-                    {
-                        xt=60;
-                        send_chars("MES: I am alive ");
-                        send_chars(ui32tox(xc++,pb));
-                        send_chars("\r\n");
-                    }
-                    SetTimer3(1000);
-                }
-                if(g_xStatus.MC_STATE!=0x30)
-                {
-                    send_chars("MES: MC_STATE!=0x30 ");
-                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-//                    send_chars(" irqf=");
-//                    send_chars(ui8toa(irqf,pb));
-                    send_chars("\r\n");
-                    if(!irqf) radio_rx_init(packetlen);
-//                    S2LPCmdStrobeRx();
-               }
+                send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                send_chars("\r\n");
             }
         }
     }
