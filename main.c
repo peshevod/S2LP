@@ -87,6 +87,7 @@ uint32_t next, xc;
 uint8_t packetlen;
 uint8_t jp4_mode,jp5_mode;
 uint32_t t_counter;
+int16_t init;
 
 
 void EXTI_Callback_INT(void)
@@ -251,13 +252,13 @@ void init_pic(uint8_t shell)
     {
         pmd_set(SEND);
         mode=MODE_TX;
-        send_chars("Transmit mode\r\n");
+        if(shell) send_chars("Transmit mode\r\n");
     }
     else
     {
         pmd_set(REC);
         mode=MODE_RX;
-        send_chars("Receive mode\r\n");
+        if(shell) send_chars("Receive mode\r\n");
     }
 }
 
@@ -265,13 +266,14 @@ void to_sleep(SLEEP_STATE ss)
 {
     uint32_t tmp32;
     uint64_t div;
-    set_s('I',&tmp32);
+    if(init>0) tmp32=30;
+    else set_s('I',&tmp32);
     counter=(tmp32*1000)/4329559;
     div=(tmp32*1000)-(counter*4329559);
     if(div==0) counter--;
     rest=1048576-(div*24219)/100000;
-    send_chars("--->");
-    send_chars("\r\n");    
+//    send_chars("--->");
+//    send_chars("\r\n");    
     pmd_set(ss);
     while(1)
     {
@@ -291,7 +293,7 @@ void to_sleep(SLEEP_STATE ss)
         break;
     }
     init_pic(0);
-    send_chars("<---\r\n");
+//    send_chars("<---\r\n");
 }
 
 
@@ -395,8 +397,15 @@ void main(void)
         vectcTxBuff[9]=0;
         vectcTxBuff[10]=jp4_mode;
         vectcTxBuff[11]=jp5_mode;
+        init=90;
         while (1)
         {
+            if(init>0)
+            {
+                vectcTxBuff[2]=0xFF;
+                if(init==30 || init==60) vectcTxBuff[9]=0;
+            }
+            else vectcTxBuff[2]=0x7F;
             vectcTxBuff[8]=0;
             if((JP4_GetValue()^((jp4_mode&0x04)>>2)) && (jp4_mode&0x03))
             {
@@ -437,6 +446,11 @@ void main(void)
                         {
                             next=1664525*next+1013904223;
                             delay_ms((next&0xFFFF0000)>>18);
+                            if(init>0)
+                            {
+                                init--;
+                                if(init==0) vectcTxBuff[9]=0;
+                            }
                         }
                         else
                         {
@@ -447,7 +461,6 @@ void main(void)
                             radio_tx_init(packetlen);
                             vectcTxBuff[0]++;
                             if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
-                            vectcTxBuff[2]=0xFF;
                             vectcTxBuff[3]=repeater;
                         }
                     }
@@ -465,6 +478,7 @@ void main(void)
                         if(irqf) continue;
                         radio_tx_init(packetlen);
                         vectcTxBuff[2]=g_xStatus.MC_STATE;
+                        if(init>0) vectcTxBuff[2]&=0x80;
                         break;
                     }
                 }
@@ -478,6 +492,7 @@ void main(void)
         PIE3bits.RC1IE=1;
         S2LPCmdStrobeRx();
         irqf=0;
+        init=-1;
         while (1)
         {
             to_sleep(SLEEP_REC);
