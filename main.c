@@ -168,18 +168,19 @@ void pmd_set(SLEEP_STATE ss)
         else PMD6bits.U1MD=0;
         
         CLKREF_Initialize();
-        NCO1CON = 0x00;
+        NCO1_Initialize();
+//        NCO1CON = 0x00;
         // CKS CLKR; PWS 1_clk; 
-        NCO1CLK = 0x06;
-        NCO1INCU = 0x00;
-        NCO1INCH = 0x00;
-        NCO1INCL = 0x01;
+//        NCO1CLK = 0x06;
+//        NCO1INCU = 0x00;
+//        NCO1INCH = 0x00;
+//        NCO1INCL = 0x01;
         NCO1ACCU = (rest&0x00FF0000)>>16;
         NCO1ACCH = (rest&0x0000FF00)>>8;
         NCO1ACCL = (rest&0x000000FF);
-        NCO1CONbits.EN = 1;
-        PIR7bits.NCO1IF = 0;
-        PIE7bits.NCO1IE = 1;
+//        NCO1CONbits.EN = 1;
+//        PIR7bits.NCO1IF = 0;
+//        PIE7bits.NCO1IE = 1;
         if(ss==SLEEP_REC)
         {
             EUSART1_Initialize();
@@ -252,13 +253,13 @@ void init_pic(uint8_t shell)
     {
         pmd_set(SEND);
         mode=MODE_TX;
-        if(shell) send_chars("Transmit mode\r\n");
+        if(shell) send_chars("MES: Transmit mode\r\n");
     }
     else
     {
         pmd_set(REC);
         mode=MODE_RX;
-        if(shell) send_chars("Receive mode\r\n");
+        if(shell) send_chars("MES: Receive mode\r\n");
     }
 }
 
@@ -317,7 +318,7 @@ void main(void)
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
     
-    send_chars("Begin\r\n");
+    send_chars("MES: Begin\r\n");
 //    alarm4=0;
 //    alarm5=0;
     pmd_off();
@@ -400,12 +401,6 @@ void main(void)
         init=90;
         while (1)
         {
-            if(init>0)
-            {
-                vectcTxBuff[2]=0xFF;
-                if(init==30 || init==60) vectcTxBuff[9]=0;
-            }
-            else vectcTxBuff[2]=0x7F;
             vectcTxBuff[8]=0;
             if((JP4_GetValue()^((jp4_mode&0x04)>>2)) && (jp4_mode&0x03))
             {
@@ -417,13 +412,13 @@ void main(void)
                 vectcTxBuff[8]|=ALARM_JP5;
                 vectcTxBuff[9]|=ALARM_JP5;
             }
-            send_chars("A data to transmit: [");
+/*            send_chars("A data to transmit: [");
             for(uint8_t i=0 ; i<packetlen ; i++)
             {
                 send_chars(ui8toa(vectcTxBuff[i],pb));
                 send_chars(" ");
             }
-            send_chars("]\n\r");
+            send_chars("]\n\r");*/
      
              /* fit the TX FIFO */
              S2LPCmdStrobeFlushTxFifo();
@@ -438,19 +433,23 @@ void main(void)
                 if(irqf)
                 {
                     S2LPGpioIrqGetStatus(&xIrqStatus);
-                    if(((uint32_t*)(&xIrqStatus))[0] & IRQ_TX_DATA_SENT)
+                    if(xIrqStatus.TX_DATA_SENT)
                     {
-                        send_chars("Data sent\r\n");
+                        send_chars("MES: Data sent\r\n");
                         /* sleep between transmissions */
+                        if(init>0)
+                        {
+                            init--;
+                            if(init==0 || init==30 || init==60)
+                            {
+                                vectcTxBuff[9]=0;
+                                vectcTxBuff[3]=repeater;                        
+                            }
+                        }
                         if(--vectcTxBuff[3] || (vectcTxBuff[9]&mode2) )
                         {
                             next=1664525*next+1013904223;
                             delay_ms((next&0xFFFF0000)>>18);
-                            if(init>0)
-                            {
-                                init--;
-                                if(init==0) vectcTxBuff[9]=0;
-                            }
                         }
                         else
                         {
@@ -470,15 +469,20 @@ void main(void)
                 else
                 {
                     S2LPRefreshStatus();
-                    send_chars("Refresh Status ");
-                    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
-                    send_chars("\r\n");
+                    if(init>0)
+                    {
+                        vectcTxBuff[2]=0xFF;
+                    }
+                    else vectcTxBuff[2]=0x7F;
                     if(g_xStatus.MC_STATE!=0x5c)
                     {
                         if(irqf) continue;
+                        send_chars("ERR: Refresh Status != 0x5C ");
+                        send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+                        send_chars("\r\n");
                         radio_tx_init(packetlen);
                         vectcTxBuff[2]=g_xStatus.MC_STATE;
-                        if(init>0) vectcTxBuff[2]&=0x80;
+                        if(init>0) vectcTxBuff[2]|=0x80;
                         break;
                     }
                 }
@@ -519,8 +523,6 @@ void main(void)
                     send_chars(ui32tox(((uint32_t*)vectcRxBuff)[2],pb));
                     send_chars(" ");
                     send_chars(i32toa(S2LPRadioGetRssidBm(),pb));
-                    send_chars(" irq=");
-                    send_chars(ui32tox(*((uint32_t*)(&xIrqStatus)),pb));
                     send_chars("\r\n");
                 }
                 S2LPCmdStrobeSleep();
