@@ -51,6 +51,7 @@ void _print_par(_par* par);
 void print_par(char p);
 void print_pars();
 uint8_t set_s(char p,void* s);
+void get_uid(uint32_t* uid);
 
 
 #ifdef	__cplusplus

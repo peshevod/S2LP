@@ -20,8 +20,14 @@ __eeprom _par _pars[]={
     {PAR_UI32,'N',{ 0x00000301 }}, // id
     {PAR_UI32,'I',{ 30 }}, // interval in seconds
     {PAR_UI8,'X',{ 3 }}, // repeater
+#ifdef HWVer3
     {PAR_UI8,'Y',{ 0x05 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
     {PAR_UI8,'Z',{ 0x06 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
+#endif
+#ifdef HWVer4
+    {PAR_UI8,'Y',{ 0x01 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
+    {PAR_UI8,'Z',{ 0x02 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
+#endif
     {PAR_UI8,'G',{ 0x060 }}, // CRC mode - 0x00 -NO CRC, 0x20 - 8 bit, 0x40 - 16 bit 0x8005, 0x60 - 16 bit 0x1021
     {0,'\x00',{0}}
 }; 
@@ -35,7 +41,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
-char ver[]={"=== S2-LP shell v 1.1.2 ===\r\n"};
+char ver[]={"=== S2-LP shell v 1.1.3 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;
@@ -245,6 +251,17 @@ uint8_t set_s(char p,void* s)
     return 1;
 }
 
+void get_uid(uint32_t* uid)
+{
+    for(uint8_t n=0;n<4;n++)
+    {
+        NVMCON1bits.NVMREGS=1;
+        NVMADRH=0x80;
+        NVMADRL=n;
+        NVMCON1bits.RD=1;
+        *uid|=(NVMDATL<<(24-8*n));
+    }
+}
 
 char* i32toa(int32_t i, char* b) {
     char const digit[] = "0123456789";

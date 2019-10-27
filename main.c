@@ -323,12 +323,23 @@ void main(void)
 //    alarm5=0;
     pmd_off();
     init_pic(1);
+#ifdef HWVer3
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
+#endif
+#ifdef HWVer4
+    IOCCF7_SetInterruptHandler(EXTI_Callback_INT);
+#endif
     mode0=0;
     mode1=0;
     mode2=0;
+#ifdef HWVer3
     IOCCPbits.IOCCP5=1;
     IOCCNbits.IOCCN5=1;
+#endif
+#ifdef HWVer4
+    IOCAPbits.IOCAP2=1;
+    IOCANbits.IOCAN2=1;
+#endif
     set_s('Y',&jp4_mode);
     if((jp4_mode&0x03)!=0)
     {
@@ -340,24 +351,47 @@ void main(void)
         }
         else
         {
+#ifdef HWVer3
             if(jp4_mode&0x04) IOCCPbits.IOCCP5=0;
             else IOCCNbits.IOCCN5=0;
+#endif
+#ifdef HWVer4
+            if(jp4_mode&0x04) IOCAPbits.IOCAP2=0;
+            else IOCANbits.IOCAN2=0;
+#endif
             mode2|=ALARM_JP4;
             mode1&=CLEAR_JP4;
         }
+#ifdef HWVer3
         IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
+#endif
+#ifdef HWVer4
+        IOCAF2_SetInterruptHandler(EXTI_Callback_JP4);
+#endif
     }
     else
     {
+#ifdef HWVer3
         IOCCPbits.IOCCP5=0;
         IOCCNbits.IOCCN5=0;
+#endif
+#ifdef HWVer4
+        IOCAPbits.IOCAP2=0;
+        IOCANbits.IOCAN2=0;
+#endif
         mode0|=ALARM_JP4;
         mode1&=CLEAR_JP4;
         mode2&=CLEAR_JP4;
     }
     set_s('Z',&jp5_mode);
+#ifdef HWVer3
     IOCCNbits.IOCCN4=1;
     IOCCPbits.IOCCP4=1;
+#endif
+#ifdef HWVer4
+    IOCCNbits.IOCCN0=1;
+    IOCCPbits.IOCCP0=1;
+#endif
     if((jp5_mode&0x03)!=0)
     {
         mode0&=CLEAR_JP5;
@@ -368,17 +402,34 @@ void main(void)
         }
         else
         {
+#ifdef HWVer3
             if(jp5_mode&0x04) IOCCPbits.IOCCP4=0;
             else IOCCNbits.IOCCN4=0;
+#endif
+#ifdef HWVer4
+            if(jp5_mode&0x04) IOCCPbits.IOCCP0=0;
+            else IOCCNbits.IOCCN0=0;
+#endif
             mode2|=ALARM_JP5;
             mode1&=CLEAR_JP5;
         }
+#ifdef HWVer3
         IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
+#endif
+#ifdef HWVer4
+        IOCCF0_SetInterruptHandler(EXTI_Callback_JP5);
+#endif
     }
     else
     {
+#ifdef HWVer3
         IOCCNbits.IOCCN4=0;
         IOCCPbits.IOCCP4=0;
+#endif
+#ifdef HWVer4
+        IOCCNbits.IOCCN0=0;
+        IOCCPbits.IOCCP0=0;
+#endif
         mode0|=ALARM_JP5;
         mode1&=CLEAR_JP5;
         mode2&=CLEAR_JP5;
@@ -393,6 +444,7 @@ void main(void)
         vectcTxBuff[2]=0xFF;
         set_s('X',&repeater);
         vectcTxBuff[3]=repeater;
+        get_uid((uint32_t*)(&(vectcTxBuff[4])));
         set_s('N',&(vectcTxBuff[4]));
         next=((uint32_t*)vectcTxBuff)[1];
         vectcTxBuff[9]=0;
