@@ -444,7 +444,7 @@ void main(void)
         vectcTxBuff[2]=0xFF;
         set_s('X',&repeater);
         vectcTxBuff[3]=repeater;
-        get_uid((uint32_t*)(&(vectcTxBuff[4])));
+//        get_uid((uint32_t*)(&(vectcTxBuff[4])));
         set_s('N',&(vectcTxBuff[4]));
         next=((uint32_t*)vectcTxBuff)[1];
         vectcTxBuff[9]=0;

@@ -41,7 +41,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
-char ver[]={"=== S2-LP shell v 1.1.3 ===\r\n"};
+char ver[]={"=== S2-LP shell v 1.1.4 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;
@@ -234,6 +234,20 @@ uint8_t set_par(char par, char* val_buf)
     return 1;
 }
 
+void set_uid(uint32_t uid)
+{
+    _par* __pars=_pars;
+    while(__pars->type)
+    {
+        if(__pars->c=='N')
+        {
+            __pars->u.ui32par=uid;
+            return;
+        }
+        __pars++;
+    }
+}
+
 uint8_t set_s(char p,void* s)
 {
     _par* __pars=_pars;
@@ -253,13 +267,15 @@ uint8_t set_s(char p,void* s)
 
 void get_uid(uint32_t* uid)
 {
+    *uid=0;
     for(uint8_t n=0;n<4;n++)
     {
         NVMCON1bits.NVMREGS=1;
         NVMADRH=0x80;
         NVMADRL=n;
         NVMCON1bits.RD=1;
-        *uid|=(NVMDATL<<(24-8*n));
+        uint32_t d=NVMDATL;
+        *uid|=(d<<(24-8*n));
     }
 }
 
@@ -404,8 +420,11 @@ uint8_t proceed() {
 void start_x_shell(void) {
     char c, cmd, par;
     uint8_t start = 0;
+    uint32_t uid;
     //    printf("Start shell\r");
 
+    get_uid(&uid);
+    set_uid(uid);
     c_len = 0;
     SetTimer3(11000);
     send_chars(ver);
