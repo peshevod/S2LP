@@ -99,6 +99,7 @@ void radio_tx_init(uint8_t packetlen)
 {
     uint8_t tmp;
     int32_t power;
+    ON375_SetHigh();
     radio_init(packetlen);
     set_s('P',&power);
    
@@ -133,6 +134,7 @@ void radio_rx_init(uint8_t packetlen)
 //    OSCFRQ=0x06;
 //    SP1BRGL=0x40;
 //    SP1BRGH=0x03;
+    ON375_SetLow();
     radio_init(packetlen);
     
     S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);

@@ -85,6 +85,26 @@
 #define JP4_SetAnalogMode()      do { ANSELAbits.ANSA2 = 1; } while(0)
 #define JP4_SetDigitalMode()     do { ANSELAbits.ANSA2 = 0; } while(0)
 
+// get/set ON375 aliases
+#define ON375_TRIS                 TRISAbits.TRISA4
+#define ON375_LAT                  LATAbits.LATA4
+#define ON375_PORT                 PORTAbits.RA4
+#define ON375_WPU                  WPUAbits.WPUA4
+#define ON375_OD                   ODCONAbits.ODCA4
+#define ON375_ANS                  ANSELAbits.ANSA4
+#define ON375_SetHigh()            do { LATAbits.LATA4 = 1; } while(0)
+#define ON375_SetLow()             do { LATAbits.LATA4 = 0; } while(0)
+#define ON375_Toggle()             do { LATAbits.LATA4 = ~LATAbits.LATA4; } while(0)
+#define ON375_GetValue()           PORTAbits.RA4
+#define ON375_SetDigitalInput()    do { TRISAbits.TRISA4 = 1; } while(0)
+#define ON375_SetDigitalOutput()   do { TRISAbits.TRISA4 = 0; } while(0)
+#define ON375_SetPullup()          do { WPUAbits.WPUA4 = 1; } while(0)
+#define ON375_ResetPullup()        do { WPUAbits.WPUA4 = 0; } while(0)
+#define ON375_SetPushPull()        do { ODCONAbits.ODCA4 = 0; } while(0)
+#define ON375_SetOpenDrain()       do { ODCONAbits.ODCA4 = 1; } while(0)
+#define ON375_SetAnalogMode()      do { ANSELAbits.ANSA4 = 1; } while(0)
+#define ON375_SetDigitalMode()     do { ANSELAbits.ANSA4 = 0; } while(0)
+
 // get/set SDI1 aliases
 #define SDI1_TRIS                 TRISBbits.TRISB4
 #define SDI1_LAT                  LATBbits.LATB4
@@ -208,6 +228,26 @@
 #define RC2_ResetPullup()           do { WPUCbits.WPUC2 = 0; } while(0)
 #define RC2_SetAnalogMode()         do { ANSELCbits.ANSC2 = 1; } while(0)
 #define RC2_SetDigitalMode()        do { ANSELCbits.ANSC2 = 0; } while(0)
+
+// get/set SWEN aliases
+#define SWEN_TRIS                 TRISCbits.TRISC4
+#define SWEN_LAT                  LATCbits.LATC4
+#define SWEN_PORT                 PORTCbits.RC4
+#define SWEN_WPU                  WPUCbits.WPUC4
+#define SWEN_OD                   ODCONCbits.ODCC4
+#define SWEN_ANS                  ANSELCbits.ANSC4
+#define SWEN_SetHigh()            do { LATCbits.LATC4 = 1; } while(0)
+#define SWEN_SetLow()             do { LATCbits.LATC4 = 0; } while(0)
+#define SWEN_Toggle()             do { LATCbits.LATC4 = ~LATCbits.LATC4; } while(0)
+#define SWEN_GetValue()           PORTCbits.RC4
+#define SWEN_SetDigitalInput()    do { TRISCbits.TRISC4 = 1; } while(0)
+#define SWEN_SetDigitalOutput()   do { TRISCbits.TRISC4 = 0; } while(0)
+#define SWEN_SetPullup()          do { WPUCbits.WPUC4 = 1; } while(0)
+#define SWEN_ResetPullup()        do { WPUCbits.WPUC4 = 0; } while(0)
+#define SWEN_SetPushPull()        do { ODCONCbits.ODCC4 = 0; } while(0)
+#define SWEN_SetOpenDrain()       do { ODCONCbits.ODCC4 = 1; } while(0)
+#define SWEN_SetAnalogMode()      do { ANSELCbits.ANSC4 = 1; } while(0)
+#define SWEN_SetDigitalMode()     do { ANSELCbits.ANSC4 = 0; } while(0)
 
 // get/set SDN aliases
 #define SDN_TRIS                 TRISCbits.TRISC5
