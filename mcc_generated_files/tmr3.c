@@ -13,12 +13,12 @@
   @Description
     This source file provides APIs for TMR3.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16LF18446
         Driver Version    :  2.11
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00
-        MPLAB 	          :  MPLAB X 5.10
+        Compiler          :  XC8 2.05 and above
+        MPLAB 	          :  MPLAB X 5.20
 */
 
 /*
@@ -79,11 +79,11 @@ void TMR3_Initialize(void)
     //TMR3L 0; 
     TMR3L = 0x00;
 
-    // Load the TMR value to reload variable
-    timer3ReloadVal=(uint16_t)((TMR3H << 8) | TMR3L);
-
     // Clearing IF flag.
     PIR4bits.TMR3IF = 0;
+	
+    // Load the TMR value to reload variable
+    timer3ReloadVal=(uint16_t)((TMR3H << 8) | TMR3L);
 
     // CKPS 1:8; NOT_SYNC synchronize; TMR3ON enabled; T3RD16 enabled; 
     T3CON = 0x33;

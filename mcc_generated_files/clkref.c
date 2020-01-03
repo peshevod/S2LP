@@ -13,12 +13,12 @@
   @Description
     This source file provides APIs for CLKREF.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16LF18446
         Driver Version    :  2.01
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00
-        MPLAB             :  MPLAB X 5.10
+        Compiler          :  XC8 2.05 and above
+        MPLAB             :  MPLAB X 5.20
 */
 
 /*

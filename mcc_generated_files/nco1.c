@@ -13,12 +13,12 @@
    @Description
      This source file provides implementations for driver APIs for NCO1.
      Generation Information :
-         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
+         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
          Device            :  PIC16LF18446
          Driver Version    :  2.11
      The generated drivers are tested against the following:
-         Compiler          :  XC8 2.00 or later
-         MPLAB             :  MPLAB X 5.10
+         Compiler          :  XC8 2.05 and above or later
+         MPLAB             :  MPLAB X 5.20
  */ 
 
  /*
@@ -87,6 +87,7 @@ void NCO1_Initialize (void)
 
 void NCO1_ISR(void)
 {
+    // Clear the NCO1 interrupt flag
     PIR7bits.NCO1IF = 0;
     inco1++;
 }

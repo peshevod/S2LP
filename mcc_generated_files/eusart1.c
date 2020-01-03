@@ -13,12 +13,12 @@
   @Description
     This source file provides APIs for EUSART1.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16LF18446
         Driver Version    :  2.1.0
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00
-        MPLAB 	          :  MPLAB X 5.10
+        Compiler          :  XC8 2.05 and above
+        MPLAB 	          :  MPLAB X 5.20
 */
 
 /*
@@ -54,6 +54,7 @@ volatile eusart1_status_t eusart1RxLastError;
 /**
   Section: EUSART1 APIs
 */
+
 void (*EUSART1_FramingErrorHandler)(void);
 void (*EUSART1_OverrunErrorHandler)(void);
 void (*EUSART1_ErrorHandler)(void);
@@ -97,7 +98,7 @@ bool EUSART1_is_tx_ready(void)
 
 bool EUSART1_is_rx_ready(void)
 {
-    return PIR3bits.RC1IF;
+    return (bool)(PIR3bits.RC1IF);
 }
 
 bool EUSART1_is_tx_done(void)

@@ -13,12 +13,12 @@
   Description:
     This header file provides implementations for pin APIs for all pins selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16LF18446
         Driver Version    :  2.11
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.00
-        MPLAB             :  MPLAB X 5.10
+        Compiler          :  XC8 2.05 and above
+        MPLAB             :  MPLAB X 5.20
 
     Copyright (c) 2013 - 2015 released Microchip Technology Inc.  All rights reserved.
 */
@@ -100,6 +100,13 @@ void PIN_MANAGER_Initialize(void)
     SLRCONB = 0xF0;
     SLRCONC = 0xFF;
 
+    /**
+    INLVLx registers
+    */
+    INLVLA = 0x3F;
+    INLVLB = 0xF0;
+    INLVLC = 0xFF;
+
 
     /**
     IOCx registers 
@@ -134,7 +141,6 @@ void PIN_MANAGER_Initialize(void)
     PIE0bits.IOCIE = 1; 
     
 	
-    SSP1CLKPPS = 0x0E;   //RB6->MSSP1:SCK1;    
     RB6PPS = 0x13;   //RB6->MSSP1:SCK1;    
     RB5PPS = 0x14;   //RB5->MSSP1:SDO1;    
     RC1PPS = 0x0F;   //RC1->EUSART1:TX1;    
