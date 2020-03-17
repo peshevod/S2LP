@@ -14,17 +14,17 @@ __eeprom _par _pars[]={
     {PAR_UI32,'S',{ 50000UL }}, // channel space
     {PAR_I32,'P',{ 16L }}, // power
     {PAR_UI8,'T',{ 1 }}, // transmit/rec
-    {PAR_UI8,'L',{ 1 }}, // use LDO/bypass LDO
+    {PAR_UI8,'L',{ 0 }}, // use LDO/bypass LDO
     {PAR_I32,'C',{ 21 }}, // channel
     {PAR_UI32,'E',{ 64 }}, // preamble length
     {PAR_UI32,'N',{ 0x00000301 }}, // id
     {PAR_UI32,'I',{ 30 }}, // interval in seconds
     {PAR_UI8,'X',{ 3 }}, // repeater
-#ifdef HWVer3
+#ifdef ASG4
     {PAR_UI8,'Y',{ 0x05 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
     {PAR_UI8,'Z',{ 0x06 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
 #endif
-#ifdef HWVer4
+#ifdef ASG5
     {PAR_UI8,'Y',{ 0x01 }}, // JP4 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP4 1 - norm, 0 - alarm
     {PAR_UI8,'Z',{ 0x02 }}, // JP5 mode, 0-inactive, 1 - change status, 2 - if alarm - non-stop, 0x04 bit: if set JP5 1 - norm, 0 - alarm
 #endif
@@ -41,7 +41,7 @@ char prompt[] = {"\r\n> "};
 char err[] = {"\r\nError\r\n> "};
 char ex[] = {"\r\nExit\r\n"};
 char commands[] = {'S', 'L', 'D'};
-char ver[]={"=== S2-LP shell v 1.1.4 ===\r\n"};
+char ver[]={"=== S2-LP shell v 1.1.5 ===\r\n"};
 
 void send_chars(char* x) {
     uint8_t i=0;

@@ -13,7 +13,7 @@
   Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.80.0
         Device            :  PIC16LF18446
         Driver Version    :  2.00
 */
@@ -56,6 +56,10 @@
 #define ALARM_JP5   0x02
 #define CLEAR_JP4   0xFE
 #define CLEAR_JP5   0xFD
+
+#define TEST_PERIOD 0x80
+
+#define VERSION     0x00
 
 typedef enum 
 {
@@ -323,20 +327,20 @@ void main(void)
 //    alarm5=0;
     pmd_off();
     init_pic(1);
-#ifdef HWVer3
+#ifdef ASG4
     IOCAF2_SetInterruptHandler(EXTI_Callback_INT);
 #endif
-#ifdef HWVer4
+#ifdef ASG5
     IOCCF7_SetInterruptHandler(EXTI_Callback_INT);
 #endif
     mode0=0;
     mode1=0;
     mode2=0;
-#ifdef HWVer3
+#ifdef ASG4
     IOCCPbits.IOCCP5=1;
     IOCCNbits.IOCCN5=1;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
     IOCAPbits.IOCAP2=1;
     IOCANbits.IOCAN2=1;
 #endif
@@ -351,31 +355,31 @@ void main(void)
         }
         else
         {
-#ifdef HWVer3
+#ifdef ASG4
             if(jp4_mode&0x04) IOCCPbits.IOCCP5=0;
             else IOCCNbits.IOCCN5=0;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
             if(jp4_mode&0x04) IOCAPbits.IOCAP2=0;
             else IOCANbits.IOCAN2=0;
 #endif
             mode2|=ALARM_JP4;
             mode1&=CLEAR_JP4;
         }
-#ifdef HWVer3
+#ifdef ASG4
         IOCCF5_SetInterruptHandler(EXTI_Callback_JP4);
 #endif
-#ifdef HWVer4
+#ifdef ASG5
         IOCAF2_SetInterruptHandler(EXTI_Callback_JP4);
 #endif
     }
     else
     {
-#ifdef HWVer3
+#ifdef ASG4
         IOCCPbits.IOCCP5=0;
         IOCCNbits.IOCCN5=0;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
         IOCAPbits.IOCAP2=0;
         IOCANbits.IOCAN2=0;
 #endif
@@ -384,11 +388,11 @@ void main(void)
         mode2&=CLEAR_JP4;
     }
     set_s('Z',&jp5_mode);
-#ifdef HWVer3
+#ifdef ASG4
     IOCCNbits.IOCCN4=1;
     IOCCPbits.IOCCP4=1;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
     IOCCNbits.IOCCN0=1;
     IOCCPbits.IOCCP0=1;
 #endif
@@ -402,31 +406,31 @@ void main(void)
         }
         else
         {
-#ifdef HWVer3
+#ifdef ASG4
             if(jp5_mode&0x04) IOCCPbits.IOCCP4=0;
             else IOCCNbits.IOCCN4=0;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
             if(jp5_mode&0x04) IOCCPbits.IOCCP0=0;
             else IOCCNbits.IOCCN0=0;
 #endif
             mode2|=ALARM_JP5;
             mode1&=CLEAR_JP5;
         }
-#ifdef HWVer3
+#ifdef ASG4
         IOCCF4_SetInterruptHandler(EXTI_Callback_JP5);
 #endif
-#ifdef HWVer4
+#ifdef ASG5
         IOCCF0_SetInterruptHandler(EXTI_Callback_JP5);
 #endif
     }
     else
     {
-#ifdef HWVer3
+#ifdef ASG4
         IOCCNbits.IOCCN4=0;
         IOCCPbits.IOCCP4=0;
 #endif
-#ifdef HWVer4
+#ifdef ASG5
         IOCCNbits.IOCCN0=0;
         IOCCPbits.IOCCP0=0;
 #endif
@@ -435,15 +439,14 @@ void main(void)
         mode2&=CLEAR_JP5;
     }
     packetlen=12;
-
     if(mode!=MODE_RX)
     {
         radio_tx_init(packetlen);
         vectcTxBuff[0]=0;
         vectcTxBuff[1]=0;
-        vectcTxBuff[2]=0xFF;
+        vectcTxBuff[2]=TEST_PERIOD | VERSION;
         set_s('X',&repeater);
-        vectcTxBuff[3]=repeater;
+        vectcTxBuff[3]=repeater-1;
 //        get_uid((uint32_t*)(&(vectcTxBuff[4])));
         set_s('N',&(vectcTxBuff[4]));
         next=((uint32_t*)vectcTxBuff)[1];
@@ -482,8 +485,10 @@ void main(void)
              /* wait for TX done */
             while(1)
             {
+send_chars("1");
                 if(irqf)
                 {
+send_chars("2");
                     S2LPGpioIrqGetStatus(&xIrqStatus);
                     if(xIrqStatus.TX_DATA_SENT)
                     {
@@ -495,13 +500,15 @@ void main(void)
                             if(init==0 || init==30 || init==60)
                             {
                                 vectcTxBuff[9]=0;
-                                vectcTxBuff[3]=repeater;                        
+                                vectcTxBuff[3]=repeater-1;                        
                             }
                         }
-                        if(--vectcTxBuff[3] || (vectcTxBuff[9]&mode2) )
+                        else vectcTxBuff[2]=VERSION; 
+                        if(vectcTxBuff[3] || (vectcTxBuff[9]&mode2) )
                         {
                             next=1664525*next+1013904223;
                             delay_ms((next&0xFFFF0000)>>18);
+                            vectcTxBuff[3]--;
                         }
                         else
                         {
@@ -512,7 +519,7 @@ void main(void)
                             radio_tx_init(packetlen);
                             vectcTxBuff[0]++;
                             if (vectcTxBuff[0]==0) vectcTxBuff[1]++;
-                            vectcTxBuff[3]=repeater;
+                            vectcTxBuff[3]=repeater-1;
                         }
                     }
                     irqf=0;
@@ -520,12 +527,9 @@ void main(void)
                 }
                 else
                 {
+send_chars("3");
                     S2LPRefreshStatus();
-                    if(init>0)
-                    {
-                        vectcTxBuff[2]=0xFF;
-                    }
-                    else vectcTxBuff[2]=0x7F;
+send_chars("4");
                     if(g_xStatus.MC_STATE!=0x5c)
                     {
                         if(irqf) continue;
@@ -533,8 +537,8 @@ void main(void)
                         send_chars(ui8tox(g_xStatus.MC_STATE,pb));
                         send_chars("\r\n");
                         radio_tx_init(packetlen);
-                        vectcTxBuff[2]=g_xStatus.MC_STATE;
-                        if(init>0) vectcTxBuff[2]|=0x80;
+//                        vectcTxBuff[2]=g_xStatus.MC_STATE;
+//                        if(init>0) vectcTxBuff[2]|=TEST_PERIOD;
                         break;
                     }
                 }
@@ -543,7 +547,7 @@ void main(void)
     }
     else
     {
-        radio_rx_init(packetlen);
+//        radio_rx_init(packetlen);
         PIR3bits.RC1IF=0;
         PIE3bits.RC1IE=1;
         S2LPCmdStrobeRx();

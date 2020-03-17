@@ -25,6 +25,7 @@
 #include "S2LP_Types.h"
 #include "S2LP_Regs.h"
 #include "MCU_Interface.h"
+#include "shell.h"
 
 
 /** @addtogroup S2LP_Libraries
@@ -80,6 +81,7 @@
  *         to maintain memory of S2LP Status.
  */
 volatile S2LPStatus g_xStatus;
+char pb[16];
 
 /**
  * @}
@@ -139,6 +141,10 @@ void S2LPRefreshStatus(void)
   {
     /* Reads the MC_STATE register to update the g_xStatus */
     g_xStatus = S2LPSpiReadRegisters(MC_STATE0_ADDR, 1, &tempRegValue);
+    send_chars(ui8tox(g_xStatus.MC_STATE,pb));
+    send_chars(" ");
+    send_chars(ui8tox(tempRegValue,pb));
+    send_chars("\r\n");
   }
   while((tempRegValue>>1)!=g_xStatus.MC_STATE);
   //printf("Refresh Status %02hhx\r",g_xStatus.MC_STATE);

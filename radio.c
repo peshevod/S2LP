@@ -58,6 +58,8 @@ void radio_init(uint8_t packetlen)
     S2LPEnterShutdown();
     S2LPExitShutdown();
     
+    S2LPSpiInit();
+    
     S2LPRadioSetXtalFrequency(XTAL_FREQ);
 
     /* S2LP IRQ config */
@@ -70,7 +72,7 @@ void radio_init(uint8_t packetlen)
     S2LPRadioSetChannelSpace(tmp32);
     set_s('C',&tmp);
     S2LPRadioSetChannel(tmp);
-    
+   
     /* S2LP Packet config */
     set_s('E',&tmp32);
     xBasicInit.xPreambleLength=(uint16_t)tmp32;
@@ -89,7 +91,7 @@ void radio_init(uint8_t packetlen)
     
     S2LPSpiReadRegisters(0x78, 1, &tmp);
     set_s('L',&tmp1);
-    if(tmp1) tmp&=0xFB;else tmp|=0x04;
+    if(tmp1) tmp|=0x04;else tmp&=0xFB;
     S2LPSpiWriteRegisters(0x78, 1, &tmp);
    
 
@@ -114,6 +116,10 @@ void radio_tx_init(uint8_t packetlen)
     }
     else
     {
+        S2LPSpiReadRegisters(PM_CONF0_ADDR, 1, &tmp);
+        tmp&=~SET_SMPS_LVL_REGMASK;
+        tmp|=0x40;
+        S2LPSpiWriteRegisters(PM_CONF0_ADDR, 1, &tmp);
         S2LPRadioSetMaxPALevel(S_DISABLE);
         S2LPRadioSetPALeveldBm(7,power);
         S2LPRadioSetPALevelMaxIndex(7);
